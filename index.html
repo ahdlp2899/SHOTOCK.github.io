@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in</title><link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<body><main class="card">
+<h1>Meet someone real</h1><p class="sub">Sign in or create an account. You must be 18 or older.</p>
+<div class="tabs"><button id="tIn" class="on" type="button">Sign in</button><button id="tUp" type="button">Create account</button></div>
+<label for="email">Email</label><input id="email" type="email" autocomplete="email">
+<label for="pw">Password (8+ characters)</label><input id="pw" type="password" autocomplete="current-password">
+<button id="go" type="button">Sign in</button>
+<div id="msg" class="msg" role="alert"></div>
+</main>
+<script src="config.js"></script>
+<script>
+let mode="in";const $=id=>document.getElementById(id);
+function setMode(m){mode=m;$("tIn").classList.toggle("on",m==="in");$("tUp").classList.toggle("on",m==="up");$("go").textContent=m==="in"?"Sign in":"Create account";$("msg").textContent=""}
+$("tIn").onclick=()=>setMode("in");$("tUp").onclick=()=>setMode("up");
+async function route(){
+  const {data:{session}}=await db.auth.getSession(); if(!session) return;
+  const {data:p}=await db.from("profiles").select("id,is_banned").eq("id",session.user.id).maybeSingle();
+  location.href = p ? "discover.html" : "profile.html";
+}
+$("go").onclick=async()=>{
+  const email=$("email").value.trim(),password=$("pw").value,msg=$("msg");msg.className="msg";
+  if(!email||password.length<8){msg.textContent="Enter an email and a password of at least 8 characters.";return}
+  $("go").disabled=true;
+  const res = mode==="in" ? await db.auth.signInWithPassword({email,password}) : await db.auth.signUp({email,password});
+  $("go").disabled=false;
+  if(res.error){msg.textContent=res.error.message;return}
+  if(mode==="up"&&!res.data.session){msg.className="msg ok";msg.textContent="Check your email to confirm your account, then sign in.";return}
+  route();
+};
+route();
+</script></body></html>

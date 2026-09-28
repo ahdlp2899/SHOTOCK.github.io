@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your profile</title><link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<body><main class="card">
+<h1>Your profile</h1><p class="sub">This is what people see when they find you.</p>
+<label for="name">First name</label><input id="name" maxlength="40">
+<label for="dob">Date of birth</label><input id="dob" type="date">
+<label for="gender">I am</label>
+<select id="gender"><option value="">Select</option><option>Woman</option><option>Man</option><option>Non-binary</option></select>
+<label for="looking">Looking for</label>
+<select id="looking"><option value="">Select</option><option>Women</option><option>Men</option><option>Everyone</option></select>
+<label for="city">City</label><input id="city" maxlength="60">
+<label for="bio">About you</label><textarea id="bio" maxlength="500"></textarea>
+<button id="save" type="button">Save profile</button>
+<button id="out" type="button" style="background:var(--mist);color:var(--plum)">Sign out</button>
+<div id="msg" class="msg" role="alert"></div>
+</main>
+<script src="config.js"></script>
+<script>
+const $=id=>document.getElementById(id);let uid;
+function age(d){const b=new Date(d),n=new Date();let a=n.getFullYear()-b.getFullYear();
+  if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;return a}
+(async()=>{
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){location.href="index.html";return}
+  uid=session.user.id;
+  const {data:p}=await db.from("profiles").select("*").eq("id",uid).maybeSingle();
+  if(p){$("name").value=p.display_name;$("dob").value=p.birthdate;$("gender").value=p.gender||"";
+    $("looking").value=p.looking_for||"";$("city").value=p.city||"";$("bio").value=p.bio||""}
+})();
+$("save").onclick=async()=>{
+  const msg=$("msg");msg.className="msg";
+  const v={id:uid,display_name:$("name").value.trim(),birthdate:$("dob").value,gender:$("gender").value,
+    looking_for:$("looking").value,city:$("city").value.trim(),bio:$("bio").value.trim()};
+  if(!v.display_name||!v.birthdate||!v.gender||!v.looking_for){msg.textContent="Fill in name, date of birth, and both dropdowns.";return}
+  if(age(v.birthdate)<18){msg.textContent="You must be 18 or older to use this app.";return}
+  $("save").disabled=true;
+  const {error}=await db.from("profiles").upsert(v);
+  $("save").disabled=false;
+  if(error){msg.textContent=error.message;return}
+  msg.className="msg ok";msg.textContent="Saved.";
+  setTimeout(()=>location.href="photos.html",700); // Step 3
+};
+$("out").onclick=async()=>{await db.auth.signOut();location.href="index.html"};
+</script></body></html>
