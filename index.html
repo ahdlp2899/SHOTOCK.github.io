@@ -1,34 +1,50 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sign in</title><link rel="stylesheet" href="style.css">
+<title>Crushly · Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="crushly.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
-<body><main class="card">
-<h1>Meet someone real</h1><p class="sub">Sign in or create an account. You must be 18 or older.</p>
-<div class="tabs"><button id="tIn" class="on" type="button">Sign in</button><button id="tUp" type="button">Create account</button></div>
-<label for="email">Email</label><input id="email" type="email" autocomplete="email">
-<label for="pw">Password (8+ characters)</label><input id="pw" type="password" autocomplete="current-password">
-<button id="go" type="button">Sign in</button>
+<body><canvas id="fx"></canvas>
+<main class="wrap page">
+<div id="top"></div>
+<nav class="tabs"><a class="nav on" href="index.html">&hearts; Login</a><a class="nav" href="signup.html">Create Account</a></nav>
+<form id="form" class="glass" novalidate>
+<p class="eyebrow">Welcome back</p>
+<h2>Let’s find<br><span>your match</span></h2>
+<p class="lead">Log in to continue your journey</p>
+<div class="sep">&hearts;</div>
+<div class="field"><label class="flex items-center gap-2 text-sm mb-2" for="email"><svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4fb3" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v.4l-10 6.6L2 6.4V6a1 1 0 0 1 1-1Zm-1 3.8V18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V8.8l-10 6.6L2 8.8Z"/></svg> Email</label><div class="inp"><input id="email" type="email" placeholder="you@example.com" autocomplete="email"></div></div>
+<div class="field"><label class="flex items-center gap-2 text-sm mb-2" for="pw"><svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4fb3" aria-hidden="true"><path d="M17 9V7a5 5 0 0 0-10 0v2H5v12h14V9h-2Zm-8 0V7a3 3 0 0 1 6 0v2H9Z"/></svg> Password</label><div class="inp"><input id="pw" type="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="eye" aria-label="Show password"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+<div class="row"><label><input type="checkbox" id="remember"> Remember me</label><a href="#" id="forgot" class="link">Forgot password?</a></div>
+<button id="go" class="btn" type="submit">Login &rarr;</button>
 <div id="msg" class="msg" role="alert"></div>
+<p class="switch">New here? <a class="link nav" href="signup.html">Create an account &rarr;</a></p>
+</form>
+<p class="foot">&hearts; More than just dating &hearts;</p>
 </main>
-<script src="config.js"></script>
+<script src="config.js"></script><script src="crushly.js"></script>
 <script>
-let mode="in";const $=id=>document.getElementById(id);
-function setMode(m){mode=m;$("tIn").classList.toggle("on",m==="in");$("tUp").classList.toggle("on",m==="up");$("go").textContent=m==="in"?"Sign in":"Create account";$("msg").textContent=""}
-$("tIn").onclick=()=>setMode("in");$("tUp").onclick=()=>setMode("up");
-async function route(){
-  const {data:{session}}=await db.auth.getSession(); if(!session) return;
-  const {data:p}=await db.from("profiles").select("id,is_banned").eq("id",session.user.id).maybeSingle();
-  location.href = p ? "discover.html" : "profile.html";
-}
-$("go").onclick=async()=>{
-  const email=$("email").value.trim(),password=$("pw").value,msg=$("msg");msg.className="msg";
-  if(!email||password.length<8){msg.textContent="Enter an email and a password of at least 8 characters.";return}
-  $("go").disabled=true;
-  const res = mode==="in" ? await db.auth.signInWithPassword({email,password}) : await db.auth.signUp({email,password});
-  $("go").disabled=false;
-  if(res.error){msg.textContent=res.error.message;return}
-  if(mode==="up"&&!res.data.session){msg.className="msg ok";msg.textContent="Check your email to confirm your account, then sign in.";return}
-  route();
-};
-route();
+const $=id=>document.getElementById(id);
+const saved=localStorage.getItem('crushly_email');
+if(saved){$('email').value=saved;$('remember').checked=true}
+crushly.goHome();
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const email=$('email').value.trim(),password=$('pw').value;
+  if(!email||!password){crushly.msg('Enter your email and password.');return}
+  $('go').disabled=true;
+  const {error}=await db.auth.signInWithPassword({email,password});
+  $('go').disabled=false;
+  if(error){crushly.msg(error.message);return}
+  $('remember').checked?localStorage.setItem('crushly_email',email):localStorage.removeItem('crushly_email');
+  crushly.msg('Welcome back!',true);crushly.goHome();
+});
+$('forgot').addEventListener('click',async e=>{
+  e.preventDefault();
+  const email=$('email').value.trim();
+  if(!email){crushly.msg('Type your email above first.');return}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:new URL('reset.html',location.href).href});
+  crushly.msg(error?error.message:'Reset link sent. Check your email.',!error);
+});
 </script></body></html>
