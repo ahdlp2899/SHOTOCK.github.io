@@ -73,6 +73,9 @@ const HOME_PAGE = "dashboard.html";
   requestAnimationFrame(frame);
   document.addEventListener("visibilitychange", () => !document.hidden && !reduce && requestAnimationFrame(frame));
 
+  // page restored by the Back button must not stay faded out
+  addEventListener("pageshow", () => document.body.classList.remove("leaving"));
+
   // --- helpers used by the pages ---
   window.crushly = {
     heroHTML,

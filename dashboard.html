@@ -59,6 +59,19 @@
 /* bottom nav */
 .toast{position:fixed;z-index:9;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.92);border:1.5px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.5);transition:transform .4s;max-width:90%;text-align:center}
 .toast.show{transform:translate(-50%,0)}
+[hidden]{display:none!important}
+.stat{position:relative;cursor:pointer}.stat .go{position:absolute;right:14px;top:14px;font-style:normal;color:var(--hot)}
+.stat:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+.picks.grid{flex-wrap:wrap;overflow:visible;scroll-snap-type:none}.picks.grid .pick{flex:0 0 calc(50% - 6px);max-width:none}
+.pick{cursor:pointer}
+.sbg{position:fixed;inset:0;z-index:20;background:rgba(7,4,15,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:min(480px,100%);max-height:90vh;overflow:auto;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;animation:up .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{transform:translateY(100%)}}
+.sheet img{width:100%;max-height:46vh;object-fit:cover;border-radius:18px;display:block}
+.sheet h3{margin:12px 0 2px;font-size:22px}.sheet p{margin:4px 0;color:var(--muted)}
+.mb{width:100%;padding:14px;border-radius:16px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:500 15px "Poppins",system-ui,sans-serif}
+.mb.pk{background:linear-gradient(135deg,var(--pink),var(--purple));border:0;box-shadow:0 0 16px rgba(255,45,141,.6)}
+.two2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 10px}
 </style></head>
 <body><canvas id="fx"></canvas>
 <main class="wrap dash page">
@@ -78,14 +91,14 @@
 </section>
 
 <section class="stats sec" style="--i:2">
-  <div class="stat"><span class="i" data-i="heart"></span><b id="s-likes">0</b><span>Likes Received</span></div>
-  <div class="stat"><span class="i" data-i="chat"></span><b id="s-chats">0</b><span>New Chats</span></div>
-  <div class="stat"><span class="i" data-i="cal"></span><b id="s-date">0</b><span>Upcoming Date</span></div>
-  <div class="stat"><span class="i" data-i="eye"></span><b id="s-views">0</b><span>Profile Views</span></div>
+  <div class="stat" role="button" tabindex="0" data-stat="likes"><i class="go">&rarr;</i><span class="i" data-i="heart"></span><b id="s-likes">0</b><span>Likes Received</span></div>
+  <div class="stat" role="button" tabindex="0" data-stat="chats"><i class="go">&rarr;</i><span class="i" data-i="chat"></span><b id="s-chats">0</b><span>New Chats</span></div>
+  <div class="stat" role="button" tabindex="0" data-stat="date"><i class="go">&rarr;</i><span class="i" data-i="cal"></span><b id="s-date">0</b><span>Upcoming Date</span></div>
+  <div class="stat" role="button" tabindex="0" data-stat="views"><i class="go">&rarr;</i><span class="i" data-i="eye"></span><b id="s-views">0</b><span>Profile Views</span></div>
 </section>
 
 <section class="sec" style="--i:3" id="picksec">
-  <div class="shead"><div><h3>Today&rsquo;s Picks</h3><small>People who might be your type</small></div><a href="#" class="link" data-soon>See All &rarr;</a></div>
+  <div class="shead"><div><h3>Today&rsquo;s Picks</h3><small>People who might be your type</small></div><button type="button" id="seeall" class="link" style="background:none;border:0;font:inherit">See All &rarr;</button></div>
   <div class="picks" id="picks"></div>
   <div class="glass empty" id="empty" hidden>No new profiles right now. Check back soon &hearts;</div>
 </section>
@@ -108,6 +121,10 @@
 <p class="foot"><a href="#" id="out" class="link" style="letter-spacing:0;text-transform:none">Log out</a></p>
 </main>
 
+<div id="pv" class="sbg" hidden><div class="sheet glass"><img id="pv-i" alt="">
+  <h3 id="pv-n"></h3><p id="pv-m"></p><p id="pv-b"></p>
+  <div class="two2"><button class="mb" id="pv-pass" type="button">&#10005; Pass</button><button class="mb pk" id="pv-like" type="button">&hearts; Like</button></div>
+  <button class="mb" id="pv-x" type="button">Close</button></div></div>
 <div id="toast" class="toast" role="status"></div>
 
 <script src="config.js"></script><script src="crushly.js"></script><script src="nav.js"></script>
@@ -132,7 +149,27 @@ let tt; const toast = t => { const e = $("toast"); e.textContent = t; e.classLis
 function count(e, n) { const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / 900);
   e.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(f); })(t0); }
 document.querySelectorAll("[data-soon]").forEach(b => b.addEventListener("click", e => { e.preventDefault(); toast("Coming soon \u2665"); }));
-$("bell").addEventListener("click", () => toast("No new notifications"));
+let pendingIn = 0;
+$("bell").addEventListener("click", () => pendingIn ? (location.href = "date.html#requests") : toast("You're all caught up \u2665"));
+$("seeall").addEventListener("click", () => { const g = $("picks").classList.toggle("grid"); $("seeall").textContent = g ? "Show Less" : "See All \u2192"; });
+const statGo = { likes: () => { $("picksec").scrollIntoView({ behavior: "smooth" }); toast("Like people back from Today's Picks \u2665"); },
+  chats: () => location.href = "chat.html", date: () => location.href = "date.html#mine", views: () => toast("Profile views are coming soon") };
+document.querySelectorAll("[data-stat]").forEach(e => { const go = () => statGo[e.dataset.stat](); e.addEventListener("click", go);
+  e.addEventListener("keydown", k => { if (k.key === "Enter" || k.key === " ") { k.preventDefault(); go(); } }); });
+$("pv-x").addEventListener("click", () => $("pv").hidden = true);
+$("pv").addEventListener("click", e => { if (e.target === $("pv")) $("pv").hidden = true; });
+async function pass(x, card) {
+  const { error } = await db.from("likes").insert({ from_user: uid, to_user: x.id, is_like: false });
+  if (error && error.code !== "23505") return toast(error.message);
+  card.classList.add("gone"); setTimeout(() => { card.remove(); if (!$("picks").children.length) $("empty").hidden = false; }, 500);
+}
+function openPv(x, card, btn) {
+  $("pv-i").src = x.avatar_url || PLACEHOLDER; $("pv-n").textContent = x.display_name + ", " + ageOf(x.birthdate);
+  $("pv-m").textContent = [x.city, x.education, x.height_cm && x.height_cm + " cm"].filter(Boolean).join(" \u00b7 "); $("pv-b").textContent = x.bio || "";
+  $("pv-like").onclick = () => { $("pv").hidden = true; like(x, card, btn); };
+  $("pv-pass").onclick = () => { $("pv").hidden = true; pass(x, card); };
+  $("pv").hidden = false;
+}
 $("find").addEventListener("click", () => $("picksec").scrollIntoView({ behavior: "smooth" }));
 $("out").addEventListener("click", async e => { e.preventDefault(); await db.auth.signOut(); location.href = "index.html"; });
 
@@ -168,7 +205,7 @@ async function like(x, card, btn) {
     db.from("likes").select("*", { count: "exact", head: true }).eq("to_user", uid).eq("is_like", true),
     db.from("matches").select("*", { count: "exact", head: true }),
     db.from("likes").select("to_user").eq("from_user", uid),
-    db.from("profiles").select("id,display_name,birthdate,city,education,avatar_url,gender").neq("id", uid).limit(40)]);
+    db.from("profiles").select("id,display_name,birthdate,city,education,avatar_url,gender,bio,height_cm").neq("id", uid).limit(40)]);
   const likes = l.count || 0;
   count($("s-likes"), likes); count($("s-chats"), m.count || 0); count($("s-views"), 0);
   const today = new Date().toLocaleDateString("en-CA");
@@ -178,12 +215,14 @@ async function like(x, card, btn) {
     $("dt-b").textContent = d.kind + " date confirmed";
     $("dt-p").textContent = new Date(d.date_on + "T00:00").toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" }) + " \u00b7 " + new Date("1970-01-01T" + d.time_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + " \u00b7 " + d.place;
     $("dt-a").textContent = "View Ticket \u2192"; $("dt-a").href = "date.html#ticket/" + d.id; }
-  if (likes) { $("bell").querySelector("span").className = "badge"; const b = $("bell").querySelector("span"); b.textContent = likes > 99 ? "99+" : likes; b.style.display = "grid"; }
+  const { count: pin } = await db.from("dates").select("*", { count: "exact", head: true }).eq("receiver", uid).eq("status", "pending");
+  pendingIn = pin || 0;
+  if (pendingIn) { const b = $("bell").querySelector("span"); b.className = "badge"; b.textContent = pendingIn > 99 ? "99+" : pendingIn; b.style.display = "grid"; }
 
   const seen = new Set((mine.data || []).map(r => r.to_user));
   const want = p.looking_for === "Men" ? "Male" : p.looking_for === "Women" ? "Female" : null;
   const picks = (all.data || []).filter(x => !seen.has(x.id) && (!want || x.gender === want))
-    .sort((a, b) => !!b.avatar_url - !!a.avatar_url).slice(0, 12);
+    .sort((a, b) => !!b.avatar_url - !!a.avatar_url).slice(0, 30);
   if (!picks.length) $("empty").hidden = false;
   picks.forEach(x => {
     const c = el("article", "pick");
@@ -193,6 +232,7 @@ async function like(x, card, btn) {
     cap.append(el("b", null, `${x.display_name}, ${ageOf(x.birthdate)}`), el("small", null, [x.city, x.education].filter(Boolean).join(" \u00b7 ")));
     const b = el("button", "lk"); b.type = "button"; b.setAttribute("aria-label", "Like " + x.display_name); b.innerHTML = svg("heart");
     b.addEventListener("click", () => like(x, c, b));
+    c.addEventListener("click", e => { if (!e.target.closest(".lk")) openPv(x, c, b); });
     c.append(cap, b); $("picks").append(c);
   });
 })();

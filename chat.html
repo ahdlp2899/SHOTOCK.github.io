@@ -230,25 +230,9 @@ async function upload(file, kind, extra) {
   if (error) return toast(error.message);
   await send({ kind, media_url: path, body: kind === "file" ? file.name : null, ...extra });
 }
-async function openThread() {
-  document.body.classList.add("tv"); $("thread").hidden = false;
-  const { data: m } = await db.from("matches").select("*").eq("id", MID).maybeSingle();
-  if (!m) { location.href = "chat.html"; return; }
-  const { data: p } = await db.from("profiles").select("id,display_name,avatar_url").eq("id", m.user_a === uid ? m.user_b : m.user_a).maybeSingle();
-  other = p || { id: "", display_name: "Someone" }; $("oname").textContent = other.display_name; $("oav").src = other.avatar_url || PH;
-  const { data: rows } = await db.from("messages").select("*").eq("match_id", MID).order("created_at").limit(300);
-  (rows || []).forEach(addMsg); db.rpc("mark_read", { mid: MID });
-  db.channel("msgs:" + MID).on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: "match_id=eq." + MID }, pl => {
-    if (pl.eventType === "INSERT") { if (!shown.has(pl.new.id)) { addMsg(pl.new); if (pl.new.sender !== uid) db.rpc("mark_read", { mid: MID }); } }
-    else if (pl.eventType === "UPDATE") { const n = shown.get(pl.new.id); if (n) tick(n, pl.new); }
-    else if (pl.eventType === "DELETE") { const n = shown.get(pl.old.id); if (n) { n.remove(); shown.delete(pl.old.id); } }
-  }).subscribe();
-  let hide, last = 0, typing = false;
-  const tch = db.channel("typing:" + MID);
-  tch.on("broadcast", { event: "typing" }, ({ payload }) => { if (payload.uid === uid) return; typing = true; status(); $("typing").hidden = false;
-    $("msgs").scrollTo({ top: $("msgs").scrollHeight }); clearTimeout(hide); hide = setTimeout(() => { typing = false; $("typing").hidden = true; status(); }, 3000); }).subscribe();
-  const status = () => { const s = $("st"), on = online.has(other.id); s.textContent = typing ? "typing\u2026" : on ? "Online" : "Offline"; s.classList.toggle("on", on); };
-  watchOnline(status);
+let tch;
+function wireUI() {
+  let last = 0; tch = db.channel("typing:" + MID);
   $("back").onclick = () => location.href = "chat.html";
   const inp = $("inp"), sync = () => { const h = inp.value.trim().length > 0; $("send").hidden = !h; $("mic").hidden = h; inp.style.height = "auto"; inp.style.height = Math.min(inp.scrollHeight, 110) + "px"; };
   inp.addEventListener("input", () => { sync(); if (Date.now() - last > 1500) { last = Date.now(); tch.send({ type: "broadcast", event: "typing", payload: { uid } }); } });
@@ -294,6 +278,26 @@ async function openThread() {
   mic.addEventListener("pointermove", e => { if (!R) return; cancel = e.clientX - x0 < -80; $("rec").classList.toggle("cx", cancel); });
   const end = () => { held = false; if (R) { const r = R; R = null; r.stop(); } };
   mic.addEventListener("pointerup", end); mic.addEventListener("pointercancel", () => { cancel = true; end(); });
+}
+async function openThread() {
+  document.body.classList.add("tv"); $("thread").hidden = false; wireUI();
+  const { data: m } = await db.from("matches").select("*").eq("id", MID).maybeSingle();
+  if (!m) { location.href = "chat.html"; return; }
+  const { data: p } = await db.from("profiles").select("id,display_name,avatar_url").eq("id", m.user_a === uid ? m.user_b : m.user_a).maybeSingle();
+  other = p || { id: "", display_name: "Someone" }; $("oname").textContent = other.display_name; $("oav").src = other.avatar_url || PH;
+  const { data: rows } = await db.from("messages").select("*").eq("match_id", MID).order("created_at").limit(300);
+  (rows || []).forEach(addMsg); db.rpc("mark_read", { mid: MID });
+  db.channel("msgs:" + MID).on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: "match_id=eq." + MID }, pl => {
+    if (pl.eventType === "INSERT") { if (!shown.has(pl.new.id)) { addMsg(pl.new); if (pl.new.sender !== uid) db.rpc("mark_read", { mid: MID }); } }
+    else if (pl.eventType === "UPDATE") { const n = shown.get(pl.new.id); if (n) tick(n, pl.new); }
+    else if (pl.eventType === "DELETE") { const n = shown.get(pl.old.id); if (n) { n.remove(); shown.delete(pl.old.id); } }
+  }).subscribe();
+  let hide, typing = false;
+  tch.on("broadcast", { event: "typing" }, ({ payload }) => { if (payload.uid === uid) return; typing = true; status(); $("typing").hidden = false;
+    $("msgs").scrollTo({ top: $("msgs").scrollHeight }); clearTimeout(hide); hide = setTimeout(() => { typing = false; $("typing").hidden = true; status(); }, 3000); }).subscribe();
+  const status = () => { const s = $("st"), on = online.has(other.id); s.textContent = typing ? "typing\u2026" : on ? "Online" : "Offline"; s.classList.toggle("on", on); };
+  watchOnline(status);
+
 }
 
 /* ---------- start ---------- */

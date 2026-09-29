@@ -19,7 +19,8 @@
 .big:hover{transform:translateY(-3px);box-shadow:0 0 34px rgba(255,45,141,.5)}
 .big .t{width:56px;height:56px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;background:rgba(255,45,141,.2);border:1px solid var(--pink)}
 .big .t .ic{width:28px;height:28px}.big b{display:block;font-size:18px}.big small{color:var(--muted)}
-.bd{margin-left:auto;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--pink);display:grid;place-items:center;font-size:13px;font-weight:600;box-shadow:0 0 10px var(--pink)}
+.tail{margin-left:auto;display:flex;align-items:center;gap:8px}.ar{font-style:normal;font-size:30px;line-height:1;color:var(--hot)}
+.bd{min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--pink);display:grid;place-items:center;font-size:13px;font-weight:600;box-shadow:0 0 10px var(--pink)}
 .qs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
 .qs div{padding:14px 6px;border-radius:16px;border:1px solid rgba(138,46,255,.5);background:rgba(20,10,45,.6);text-align:center}.qs b{display:block;font-size:24px}.qs small{color:var(--muted)}
 .seg{display:flex;gap:6px;padding:5px;border-radius:999px;border:1px solid rgba(138,46,255,.5);background:rgba(20,10,45,.6);margin-bottom:14px}
@@ -90,7 +91,7 @@ const first = p => (p.display_name || "").split(" ")[0];
 const mapUrl = pl => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(pl);
 const bar = t => `<div class="hb"><button class="ib2" data-back aria-label="Back">&larr;</button><h2>${t}</h2></div>`;
 const H = h => { $("app").innerHTML = h; };
-let uid, me, D = [], M = [], tab = "pending", mtab = "up", ck = "";
+let uid, me, D = [], M = [], tab = "pending", mtab = "up", ck = "", view = "home", lastList = "";
 
 async function profilesOf(ids) { if (!ids.length) return {}; const { data } = await db.from("profiles").select("id,display_name,birthdate,avatar_url").in("id", ids); return Object.fromEntries((data || []).map(p => [p.id, p])); }
 async function loadDates() {
@@ -122,18 +123,20 @@ const seg = (items, cur, attr) => `<div class="seg">${items.map(([k, l, n]) => `
 function renderHome() {
   const inc = D.filter(d => !d.out && d.status === "pending").length, c = s => D.filter(d => d.status === s).length;
   H(`<section class="hw"><div class="heroart" id="heroart" aria-hidden="true"></div><h1>Date Dashboard</h1><p>Turn your match into a real moment.</p></section>
-  <button class="big" data-go="#create"><span class="t">${ic("ticket")}</span><span><b>Create Date Ticket</b><small>Plan a date with your match and send a request.</small></span></button>
-  <button class="big" data-go="#requests" style="animation-delay:.1s"><span class="t">${ic("mail")}</span><span><b>Accept Date Request</b><small>View and respond to date requests from your matches.</small></span>${inc ? `<span class="bd">${inc}</span>` : ""}</button>
+  <button class="big" data-go="#create"><span class="t">${ic("ticket")}</span><span><b>Create Date Ticket</b><small>Plan a date with your match and send a request.</small></span><span class="tail"><i class="ar">&rsaquo;</i></span></button>
+  <button class="big" data-go="#requests" style="animation-delay:.1s"><span class="t">${ic("mail")}</span><span><b>Accept Date Request</b><small>View and respond to date requests from your matches.</small></span><span class="tail">${inc ? `<span class="bd">${inc}</span>` : ""}<i class="ar">&rsaquo;</i></span></button>
   <section class="glass" style="padding:16px;margin-top:14px"><b>Quick Stats</b><div class="qs"><div><b>${c("pending")}</b><small>Pending</small></div><div><b>${c("confirmed")}</b><small>Confirmed</small></div><div><b>${c("rejected")}</b><small>Rejected</small></div></div></section>
   <button class="link2" data-go="#mine">My Dates &rarr;</button>`);
   $("heroart").innerHTML = crushly.heroHTML;
 }
 function renderRequests() {
+  lastList = "requests";
   const g = s => D.filter(d => s.includes(d.status)), list = g(tab === "rejected" ? ["rejected", "cancelled"] : [tab]);
   H(bar("Date Requests") + seg([["pending", "Pending", g(["pending"]).length], ["confirmed", "Confirmed", g(["confirmed"]).length], ["rejected", "Rejected", g(["rejected", "cancelled"]).length]], tab, "data-tab")
     + (list.length ? list.map(card).join("") : `<div class="glass empty">Nothing here yet.</div>`));
 }
 function renderMine() {
+  lastList = "mine";
   const now = new Date(), c = D.filter(d => d.status === "confirmed"), up = c.filter(d => when(d) >= now).sort((a, b) => when(a) - when(b)), past = c.filter(d => when(d) < now);
   const list = mtab === "up" ? up : past;
   H(bar("My Dates") + seg([["up", "Upcoming", up.length], ["past", "Past", past.length]], mtab, "data-mtab")
@@ -194,7 +197,7 @@ function renderTicket(id) {
 
 /* ----- routing + actions ----- */
 function route() {
-  const [v, a] = (location.hash.slice(1) || "home").split("/"); $("top").hidden = v !== "home";
+  const [v, a] = (location.hash.slice(1) || "home").split("/"); $("top").hidden = v !== "home"; view = v;
   ({ home: renderHome, requests: renderRequests, mine: renderMine, create: () => renderCreate(a), ticket: () => renderTicket(a) }[v] || renderHome)(); window.scrollTo(0, 0);
 }
 async function act(a, id) {
@@ -208,7 +211,7 @@ async function act(a, id) {
 $("app").addEventListener("click", e => {
   const t = e.target.closest("[data-go],[data-act],[data-tab],[data-mtab],[data-back],[data-kind]"); if (!t) return;
   if (t.dataset.go) location.hash = t.dataset.go;
-  else if (t.dataset.back) history.length > 1 ? history.back() : (location.hash = "#home");
+  else if (t.dataset.back) location.hash = view === "ticket" ? "#" + (lastList || "mine") : "#home";
   else if (t.dataset.tab) { tab = t.dataset.tab; renderRequests(); }
   else if (t.dataset.mtab) { mtab = t.dataset.mtab; renderMine(); }
   else if (t.dataset.act) { const [a, id] = t.dataset.act.split(":"); act(a, id); }
