@@ -220,10 +220,15 @@ async function like(x, card, btn) {
   if (pendingIn) { const b = $("bell").querySelector("span"); b.className = "badge"; b.textContent = pendingIn > 99 ? "99+" : pendingIn; b.style.display = "grid"; }
 
   const seen = new Set((mine.data || []).map(r => r.to_user));
-  const want = p.looking_for === "Men" ? "Male" : p.looking_for === "Women" ? "Female" : null;
-  const picks = (all.data || []).filter(x => !seen.has(x.id) && (!want || x.gender === want))
+  const norm = g => /^(male|man|men)$/i.test(g || "") ? "m" : /^(female|woman|women)$/i.test(g || "") ? "f" : "";
+  const want = norm(p.looking_for), others = all.data || [];
+  const picks = others.filter(x => !seen.has(x.id) && (!want || norm(x.gender) === want))
     .sort((a, b) => !!b.avatar_url - !!a.avatar_url).slice(0, 30);
-  if (!picks.length) $("empty").hidden = false;
+  if (!picks.length) { $("empty").hidden = false;
+    $("empty").textContent = all.error ? "Could not load profiles: " + all.error.message
+      : !others.length ? "No other profiles yet. Ask a friend to sign up and finish their profile \u2665"
+      : others.every(x => seen.has(x.id)) ? "You've seen everyone for now. Check back soon \u2665"
+      : "Other profiles exist, but none match your \u201CLooking for\u201D choice. Open Edit Profile and check your Looking for and their gender."; }
   picks.forEach(x => {
     const c = el("article", "pick");
     if (x.avatar_url) { const i = el("img"); i.src = x.avatar_url; i.alt = x.display_name; i.loading = "lazy"; c.append(i); }
