@@ -9,13 +9,15 @@ const HOME_PAGE = "dashboard.html";
   // --- logo + tagline + animated hero (edit tagline text here) ---
   const heart = (cls, a, b) => `<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="g${cls}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><path d="${HP}" fill="url(#g${cls})" fill-opacity=".55" stroke="#ffd6ec" stroke-opacity=".85" stroke-width="3" stroke-linejoin="round"/><path d="M50 82C26 63 14 47 14 30" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/><path d="M50 18V90M50 18 28 5M50 18 72 5" stroke="#fff" stroke-opacity=".18" stroke-width="1.5"/></svg>`;
   const top = $("#top");
-  if (top) top.innerHTML = `
+  const brandHTML = `
     <div class="brand">
       <svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8D"/><stop offset="1" stop-color="#8A2EFF"/></linearGradient></defs><path d="${HP}" fill="none" stroke="url(#lg)" stroke-width="9" stroke-linejoin="round" transform="translate(-6 -4) scale(.9)"/><path d="${HP}" fill="none" stroke="#8A2EFF" stroke-opacity=".8" stroke-width="7" stroke-linejoin="round" transform="translate(14 8) scale(.8)"/></svg>
       <div><h1>Crushly</h1><p>Real People &bull; Real Connections</p></div>
     </div>
-    <div class="hero" aria-hidden="true"><div class="ring"></div><div class="ring r2"></div>
+    `;
+  const heroHTML = `<div class="hero" aria-hidden="true"><div class="ring"></div><div class="ring r2"></div>
       <div class="hearts">${heart("h1", "#FF2D8D", "#FF8CC6")}${heart("h2", "#8A2EFF", "#C58BFF")}</div></div>`;
+  if (top) top.innerHTML = brandHTML + (top.dataset.hero === "0" ? "" : heroHTML);
 
   // --- animated page transition between login and signup ---
   document.addEventListener("click", e => {
@@ -73,6 +75,7 @@ const HOME_PAGE = "dashboard.html";
 
   // --- helpers used by the pages ---
   window.crushly = {
+    heroHTML,
     msg(text, ok) { const m = document.getElementById("msg"); m.textContent = text; m.className = "msg" + (ok ? " ok" : ""); },
     async goHome() {
       const { data: { session } } = await db.auth.getSession();

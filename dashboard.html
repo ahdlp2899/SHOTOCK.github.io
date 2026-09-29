@@ -1,68 +1,201 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Crushly · Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crushly · Home</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="crushly.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-.wrap.dash{max-width:980px}
-.dash .hero{display:none}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.ghost{background:rgba(20,10,45,.6);border:1px solid rgba(138,46,255,.5);color:var(--muted);border-radius:999px;padding:9px 16px;font:500 14px "Poppins",system-ui,sans-serif;cursor:pointer;text-decoration:none}
-.ghost:hover{border-color:var(--hot);color:#fff}
-.me{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:20px}
-.pic{width:104px;height:104px;border-radius:50%;border:3px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.6);object-fit:cover;background:rgba(20,10,45,.6);flex:0 0 auto}
-.me h2{margin:0;font-size:26px;font-weight:700}
-.me h2 span{background:linear-gradient(90deg,var(--hot),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
-.bio{margin:8px 0 0;color:var(--muted);max-width:52ch}
-.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.chip{padding:6px 12px;border-radius:999px;border:1px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);font-size:13px}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:18px}
-.tile{padding:20px}
-.tile b{display:block;font-size:18px}
-.tile p{margin:6px 0 0;font-size:14px;color:var(--muted)}
-.soon{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:999px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:rgba(138,46,255,.3);color:#dcc6ff}
+.wrap.dash{max-width:480px;padding-bottom:120px}
+.sec{animation:in .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*90ms)}
+.i svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* top bar */
+.tb{display:flex;align-items:center;gap:10px}.tb .grow{flex:1}
+.ib{position:relative;width:44px;height:44px;padding:0;border-radius:50%;border:1.5px solid rgba(255,45,141,.55);background:rgba(20,10,45,.6);display:grid;place-items:center;color:var(--hot);cursor:pointer}
+.badge{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--pink);color:#fff;font-size:11px;font-weight:600;display:none;place-items:center;box-shadow:0 0 10px var(--pink)}
+.av{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--hot);box-shadow:0 0 12px rgba(255,45,141,.6);display:block}
+.glow{height:1px;margin-top:8px;background:linear-gradient(90deg,transparent,var(--pink),transparent);box-shadow:0 0 12px var(--pink)}
+/* hero */
+.herocard{position:relative;overflow:hidden;padding:22px 20px;margin-top:14px}
+.hi{font-size:19px}
+.herocard h2{margin:0;font-size:40px;line-height:1.1;font-weight:700;text-transform:uppercase;background:linear-gradient(90deg,#fff,#ffb3dd);-webkit-background-clip:text;background-clip:text;color:transparent;word-break:break-word;max-width:62%}
+.herocard p{margin:8px 0 0;max-width:58%;font-size:14px;color:var(--muted)}
+.heroart{position:absolute;right:-78px;top:-22px;width:250px;pointer-events:none;transform:scale(.74);transform-origin:top right}
+.strength{position:relative;z-index:1;display:block;margin-top:18px;padding:14px 16px;border-radius:20px;text-decoration:none;color:#fff;background:rgba(20,10,45,.7);border:1.5px solid rgba(255,45,141,.55)}
+.strength .r{display:flex;justify-content:space-between;align-items:center;font-size:15px}
+.strength b{font-size:22px;color:var(--hot)}
+.pbar{height:6px;margin-top:8px;border-radius:9px;background:rgba(138,46,255,.3);overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--purple));box-shadow:0 0 10px var(--pink);transition:width 1.2s ease}
+/* stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.stat{padding:16px;border-radius:22px;background:linear-gradient(160deg,rgba(60,20,110,.35),rgba(15,6,30,.55));border:1.5px solid rgba(255,45,141,.45);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:.25s}
+.stat:hover,.stat:active{box-shadow:0 0 22px rgba(255,45,141,.5);transform:translateY(-2px)}
+.stat .i{color:var(--hot)}
+.stat b{display:block;margin-top:8px;font-size:28px;line-height:1}
+.stat span{font-size:13px;color:var(--muted)}
+/* picks */
+.shead{display:flex;justify-content:space-between;align-items:center;margin:24px 4px 10px}
+.shead h3{margin:0;font-size:19px;font-weight:600}.shead small{display:block;color:var(--muted);font-size:13px}
+.picks{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px}
+.pick{position:relative;flex:0 0 62%;max-width:230px;aspect-ratio:3/4;border-radius:22px;overflow:hidden;scroll-snap-align:start;border:1.5px solid rgba(255,45,141,.5);background:linear-gradient(160deg,#3b1170,#150a2e);transition:.5s}
+.pick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ini{position:absolute;inset:0;display:grid;place-items:center;font-size:72px;font-weight:700;color:rgba(255,255,255,.3)}
+.cap{position:absolute;left:0;right:0;bottom:0;padding:44px 62px 12px 12px;background:linear-gradient(transparent,rgba(7,4,15,.92))}
+.cap b{display:block;font-size:16px}.cap small{color:var(--muted);font-size:12px}
+.lk{position:absolute;right:10px;bottom:10px;width:42px;height:42px;padding:0;border:0;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple));display:grid;place-items:center;box-shadow:0 0 16px var(--pink);cursor:pointer;transition:transform .2s}
+.lk:hover{transform:scale(1.12)}.lk svg{width:22px;height:22px;fill:#fff;stroke:#fff}
+.pick.gone{opacity:0;transform:scale(.9)}
+.empty{padding:22px;text-align:center;color:var(--muted)}
+/* date */
+.datecard{display:flex;gap:14px;align-items:center;padding:18px;margin-top:6px}
+.datecard .ic{width:54px;height:54px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;color:var(--hot);background:rgba(255,45,141,.16);border:1px solid var(--pink)}
+.datecard b{display:block;font-size:17px}.datecard p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.mini{margin-top:10px;padding:9px 16px;border-radius:999px;border:1.5px solid var(--hot);background:rgba(255,45,141,.12);color:#fff;font:500 13px "Poppins",system-ui,sans-serif;cursor:pointer}
+/* quick actions */
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qa>*{display:flex;align-items:center;gap:12px;padding:14px;border-radius:20px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;text-align:left;font:500 14px "Poppins",system-ui,sans-serif;cursor:pointer;text-decoration:none;transition:.2s}
+.qa>*:hover,.qa>*:active{transform:translateY(-3px);box-shadow:0 0 18px rgba(255,45,141,.5)}
+.qa .i{color:var(--hot)}.qa small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+/* bottom nav */
+.bnav{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(440px,calc(100% - 24px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;border-radius:999px;background:rgba(15,6,30,.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1.5px solid rgba(255,45,141,.5);box-shadow:0 0 26px rgba(255,45,141,.25)}
+.bnav>*{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:999px;border:0;background:none;color:var(--muted);font:500 12px "Poppins",system-ui,sans-serif;text-decoration:none;cursor:pointer;transition:.3s}
+.bnav .on{color:#fff;background:linear-gradient(135deg,rgba(255,45,141,.55),rgba(138,46,255,.55));box-shadow:0 0 18px rgba(255,45,141,.7)}
+.toast{position:fixed;z-index:9;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.92);border:1.5px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.5);transition:transform .4s;max-width:90%;text-align:center}
+.toast.show{transform:translate(-50%,0)}
 </style></head>
 <body><canvas id="fx"></canvas>
 <main class="wrap dash page">
-<div class="topbar"><div id="top"></div>
-  <div class="flex gap-2"><a class="ghost nav" href="profile.html">Edit profile</a><button id="out" class="ghost" type="button">Log out</button></div></div>
 
-<section class="glass me" style="margin-top:20px">
-  <img id="pic" class="pic" alt="Your profile photo">
-  <div>
-    <p class="eyebrow">Welcome</p>
-    <h2 id="name"><span></span></h2>
-    <p id="bio" class="bio"></p>
-    <div id="facts" class="facts"></div>
+<header class="sec" style="--i:0"><div class="tb">
+  <div id="top" data-hero="0" class="grow"></div>
+  <button class="ib i" id="bell" type="button" aria-label="Notifications" data-i="bell"><span></span></button>
+  <a href="profile.html" class="nav" aria-label="Your profile"><img id="av" class="av" alt="Your photo"></a>
+</div><div class="glow"></div></header>
+
+<section class="glass herocard sec" style="--i:1">
+  <div class="heroart" id="heroart" aria-hidden="true"></div>
+  <div class="hi" id="hi">Hello,</div>
+  <h2 id="nm">&nbsp;</h2>
+  <p>New people. New stories. Same you.</p>
+  <a class="strength nav" href="profile.html"><div class="r"><span>&hearts; Profile strength</span><b id="pct">0%</b></div><div class="pbar"><i id="pfill"></i></div></a>
+</section>
+
+<section class="stats sec" style="--i:2">
+  <div class="stat"><span class="i" data-i="heart"></span><b id="s-likes">0</b><span>Likes Received</span></div>
+  <div class="stat"><span class="i" data-i="chat"></span><b id="s-chats">0</b><span>New Chats</span></div>
+  <div class="stat"><span class="i" data-i="cal"></span><b id="s-date">0</b><span>Upcoming Date</span></div>
+  <div class="stat"><span class="i" data-i="eye"></span><b id="s-views">0</b><span>Profile Views</span></div>
+</section>
+
+<section class="sec" style="--i:3" id="picksec">
+  <div class="shead"><div><h3>Today&rsquo;s Picks</h3><small>People who might be your type</small></div><a href="#" class="link" data-soon>See All &rarr;</a></div>
+  <div class="picks" id="picks"></div>
+  <div class="glass empty" id="empty" hidden>No new profiles right now. Check back soon &hearts;</div>
+</section>
+
+<section class="sec" style="--i:4">
+  <div class="shead"><h3>Upcoming Date</h3></div>
+  <div class="glass datecard"><div class="ic i" data-i="cal"></div>
+    <div><b>No date planned yet</b><p>Match with someone, then turn it into a date.</p><button class="mini" type="button" data-soon>Plan a Date &rarr;</button></div></div>
+</section>
+
+<section class="sec" style="--i:5">
+  <div class="shead"><h3>Quick Actions</h3></div>
+  <div class="qa">
+    <a href="profile.html" class="nav"><span class="i" data-i="pen"></span><span>Edit Profile<small>Update your info</small></span></a>
+    <button type="button" id="find"><span class="i" data-i="search"></span><span>Find Matches<small>Discover new people</small></span></button>
+    <button type="button" data-soon><span class="i" data-i="cal"></span><span>Plan Date<small>Turn matches into dates</small></span></button>
+    <button type="button" data-soon><span class="i" data-i="star"></span><span>Premium<small>Get more features</small></span></button>
   </div>
 </section>
-
-<section class="tiles">
-  <div class="glass tile"><b>&hearts; Discover</b><p>Meet new people near you.</p><span class="soon">Coming soon</span></div>
-  <div class="glass tile"><b>&hearts; Matches</b><p>People who like you back.</p><span class="soon">Coming soon</span></div>
-  <div class="glass tile"><b>&hearts; Messages</b><p>Chat, share photos and call.</p><span class="soon">Coming soon</span></div>
-  <div class="glass tile"><b>&hearts; Settings</b><p>Account, privacy and safety.</p><span class="soon">Coming soon</span></div>
-</section>
-<p class="foot">&hearts; More than just dating &hearts;</p>
+<p class="foot"><a href="#" id="out" class="link" style="letter-spacing:0;text-transform:none">Log out</a></p>
 </main>
+
+<nav class="bnav" aria-label="Main">
+  <a class="on" href="dashboard.html" aria-current="page"><span class="i" data-i="home"></span>Home</a>
+  <button type="button" data-soon><span class="i" data-i="chat"></span>Chat</button>
+  <button type="button" data-soon><span class="i" data-i="cal"></span>Date</button>
+  <a href="profile.html" class="nav"><span class="i" data-i="user"></span>Profile</a>
+</nav>
+<div id="toast" class="toast" role="status"></div>
+
 <script src="config.js"></script><script src="crushly.js"></script>
 <script>
 const $ = id => document.getElementById(id);
+const ICONS = {
+  heart: '<path d="M12 21C5 15.5 3 12 3 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 9 2.5C21 12 19 15.5 12 21Z"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>', cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>',
+  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  home: '<path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/>', user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 5-7 8-7s7 2 8 7"/>',
+  bell: '<path d="M6 17v-6a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/>', pen: '<path d="M4 20l1-5L16 4l4 4L9 19z"/>',
+  search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>', star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>' };
+const svg = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+document.querySelectorAll("[data-i]").forEach(e => e.insertAdjacentHTML("afterbegin", svg(e.dataset.i)));
+$("heroart").innerHTML = crushly.heroHTML;
+
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const ageOf = d => { const b = new Date(d), n = new Date(); let a = n.getFullYear() - b.getFullYear();
+  if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) a--; return a; };
+const PLACEHOLDER = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
+let tt; const toast = t => { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("show"), 2400); };
+function count(e, n) { const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / 900);
+  e.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(f); })(t0); }
+document.querySelectorAll("[data-soon]").forEach(b => b.addEventListener("click", e => { e.preventDefault(); toast("Coming soon \u2665"); }));
+$("bell").addEventListener("click", () => toast("No new notifications"));
+$("find").addEventListener("click", () => $("picksec").scrollIntoView({ behavior: "smooth" }));
+$("out").addEventListener("click", async e => { e.preventDefault(); await db.auth.signOut(); location.href = "index.html"; });
+
+let uid, me;
+async function like(x, card, btn) {
+  btn.disabled = true;
+  const { error } = await db.from("likes").insert({ from_user: uid, to_user: x.id, is_like: true });
+  if (error) { btn.disabled = false; toast(error.code === "23505" ? "Already liked" : error.message); return; }
+  const { data: m } = await db.from("matches").select("id")
+    .or(`and(user_a.eq.${uid},user_b.eq.${x.id}),and(user_a.eq.${x.id},user_b.eq.${uid})`).limit(1);
+  if (m && m.length) { toast("It's a match with " + x.display_name + "! \u2665"); count($("s-chats"), (+$("s-chats").textContent) + 1); }
+  else toast("Liked " + x.display_name + " \u2665");
+  card.classList.add("gone");
+  setTimeout(() => { card.remove(); if (!$("picks").children.length) $("empty").hidden = false; }, 500);
+}
+
 (async () => {
   const { data: { session } } = await db.auth.getSession();
   if (!session) { location.href = "index.html"; return; }
-  const { data: p } = await db.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
+  uid = session.user.id;
+  const { data: p } = await db.from("profiles").select("*").eq("id", uid).maybeSingle();
   if (!p) { location.href = "profile.html"; return; }
-  const b = new Date(p.birthdate), n = new Date(); let age = n.getFullYear() - b.getFullYear();
-  if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) age--;
-  $("name").firstChild.textContent = (p.display_name || "") + ", " + age;
-  $("bio").textContent = p.bio || "";
-  $("pic").src = p.avatar_url || "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
-  [p.city && [p.city, p.state, p.country].filter(Boolean).join(", "), p.height_cm && p.height_cm + " cm", p.weight_kg && p.weight_kg + " kg",
-   p.education, p.gender, p.looking_for && "Looking for " + p.looking_for.toLowerCase()].filter(Boolean).forEach(t => {
-    const c = document.createElement("span"); c.className = "chip"; c.textContent = t; $("facts").appendChild(c); });
+  me = p;
+  const h = new Date().getHours();
+  $("hi").textContent = h < 12 ? "Good Morning," : h < 17 ? "Good Afternoon," : "Good Evening,";
+  $("nm").textContent = (p.display_name || "").split(" ")[0];
+  $("av").src = p.avatar_url || PLACEHOLDER;
+  const keys = ["display_name", "birthdate", "gender", "looking_for", "height_cm", "weight_kg", "education", "city", "state", "country", "bio", "avatar_url"];
+  const pct = Math.round(keys.filter(k => p[k]).length / keys.length * 100);
+  $("pct").textContent = pct + "%"; setTimeout(() => $("pfill").style.width = pct + "%", 300);
+
+  const [l, m, mine, all] = await Promise.all([
+    db.from("likes").select("*", { count: "exact", head: true }).eq("to_user", uid).eq("is_like", true),
+    db.from("matches").select("*", { count: "exact", head: true }),
+    db.from("likes").select("to_user").eq("from_user", uid),
+    db.from("profiles").select("id,display_name,birthdate,city,education,avatar_url,gender").neq("id", uid).limit(40)]);
+  const likes = l.count || 0;
+  count($("s-likes"), likes); count($("s-chats"), m.count || 0); count($("s-date"), 0); count($("s-views"), 0);
+  if (likes) { $("bell").querySelector("span").className = "badge"; const b = $("bell").querySelector("span"); b.textContent = likes > 99 ? "99+" : likes; b.style.display = "grid"; }
+
+  const seen = new Set((mine.data || []).map(r => r.to_user));
+  const want = p.looking_for === "Men" ? "Male" : p.looking_for === "Women" ? "Female" : null;
+  const picks = (all.data || []).filter(x => !seen.has(x.id) && (!want || x.gender === want))
+    .sort((a, b) => !!b.avatar_url - !!a.avatar_url).slice(0, 12);
+  if (!picks.length) $("empty").hidden = false;
+  picks.forEach(x => {
+    const c = el("article", "pick");
+    if (x.avatar_url) { const i = el("img"); i.src = x.avatar_url; i.alt = x.display_name; i.loading = "lazy"; c.append(i); }
+    else c.append(el("div", "ini", (x.display_name || "?")[0]));
+    const cap = el("div", "cap");
+    cap.append(el("b", null, `${x.display_name}, ${ageOf(x.birthdate)}`), el("small", null, [x.city, x.education].filter(Boolean).join(" \u00b7 ")));
+    const b = el("button", "lk"); b.type = "button"; b.setAttribute("aria-label", "Like " + x.display_name); b.innerHTML = svg("heart");
+    b.addEventListener("click", () => like(x, c, b));
+    c.append(cap, b); $("picks").append(c);
+  });
 })();
-$("out").addEventListener("click", async () => { await db.auth.signOut(); location.href = "index.html"; });
 </script></body></html>
