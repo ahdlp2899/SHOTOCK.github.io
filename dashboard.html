@@ -124,6 +124,7 @@
 <div id="pv" class="sbg" hidden><div class="sheet glass"><img id="pv-i" alt="">
   <h3 id="pv-n"></h3><p id="pv-m"></p><p id="pv-b"></p>
   <div class="two2"><button class="mb" id="pv-pass" type="button">&#10005; Pass</button><button class="mb pk" id="pv-like" type="button">&hearts; Like</button></div>
+  <div class="two2" style="margin-top:0"><button class="mb" id="pv-rep" type="button">Report</button><button class="mb" id="pv-blk" type="button">Block</button></div>
   <button class="mb" id="pv-x" type="button">Close</button></div></div>
 <div id="toast" class="toast" role="status"></div>
 
@@ -168,6 +169,8 @@ function openPv(x, card, btn) {
   $("pv-m").textContent = [x.city, x.education, x.height_cm && x.height_cm + " cm"].filter(Boolean).join(" \u00b7 "); $("pv-b").textContent = x.bio || "";
   $("pv-like").onclick = () => { $("pv").hidden = true; like(x, card, btn); };
   $("pv-pass").onclick = () => { $("pv").hidden = true; pass(x, card); };
+  $("pv-rep").onclick = () => { $("pv").hidden = true; crushlyReport(x.id, x.display_name); };
+  $("pv-blk").onclick = () => { $("pv").hidden = true; crushlyBlock(x.id, x.display_name, () => { card.remove(); if (!$("picks").children.length) $("empty").hidden = false; }); };
   $("pv").hidden = false;
 }
 $("find").addEventListener("click", () => $("picksec").scrollIntoView({ behavior: "smooth" }));
@@ -193,6 +196,7 @@ async function like(x, card, btn) {
   const { data: p } = await db.from("profiles").select("*").eq("id", uid).maybeSingle();
   if (!p) { location.href = "profile.html"; return; }
   me = p;
+  if (p.is_admin) { const a = el("a", "link nav", "Admin panel"); a.href = "admin.html"; a.style.cssText = "letter-spacing:0;text-transform:none;margin-right:18px"; $("out").before(a); }
   const h = new Date().getHours();
   $("hi").textContent = h < 12 ? "Good Morning," : h < 17 ? "Good Afternoon," : "Good Evening,";
   $("nm").textContent = (p.display_name || "").split(" ")[0];

@@ -1,0 +1,115 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crushly · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="crushly.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+[hidden]{display:none!important}
+.wrap.ad{max-width:760px;padding-bottom:60px}
+.tb{display:flex;align-items:center;gap:10px}.tb .grow{flex:1}
+.tag{padding:6px 14px;border-radius:999px;border:1.5px solid var(--hot);background:rgba(255,45,141,.18);font-weight:600;letter-spacing:.12em;font-size:12px;text-transform:uppercase}
+.glow{height:1px;margin:8px 0 14px;background:linear-gradient(90deg,transparent,var(--pink),transparent);box-shadow:0 0 12px var(--pink)}
+.seg{display:flex;gap:6px;padding:5px;border-radius:999px;border:1px solid rgba(138,46,255,.5);background:rgba(20,10,45,.6);margin-bottom:14px}
+.seg button{flex:1;padding:11px 6px;border:0;border-radius:999px;background:none;color:var(--muted);font:500 14px "Poppins",system-ui,sans-serif;transition:.3s}
+.seg .on{color:#fff;background:linear-gradient(135deg,rgba(255,45,141,.6),rgba(138,46,255,.6));box-shadow:0 0 14px rgba(255,45,141,.6)}
+.seg em{font-style:normal;margin-left:4px;padding:1px 7px;border-radius:9px;background:var(--pink);font-size:12px}
+.ld{width:34px;height:34px;margin:50px auto;border-radius:50%;border:3px solid rgba(138,46,255,.3);border-top-color:var(--pink);animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sc{padding:18px;border-radius:22px;border:1.5px solid rgba(255,45,141,.45);background:linear-gradient(160deg,rgba(60,20,110,.35),rgba(15,6,30,.55));animation:in .5s both}
+.sc b{display:block;font-size:32px}.sc small{color:var(--muted)}
+.search{width:100%;margin-bottom:14px;padding:14px 16px;border-radius:16px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:16px "Poppins",system-ui,sans-serif}
+.search:focus{outline:0;border-color:var(--hot);box-shadow:0 0 18px rgba(255,45,141,.45)}
+.card{padding:14px;margin-bottom:12px;animation:in .4s both}
+.row1{display:flex;gap:12px;align-items:center}.row1>div{flex:1;min-width:0}
+.av{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--hot);flex:0 0 auto}
+.card small{display:block;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-block;margin:6px 6px 0 0;padding:3px 10px;border-radius:999px;font-size:12px;border:1px solid var(--hot);background:rgba(255,45,141,.15)}
+.chip.red{border-color:#ff4d6d;background:rgba(255,77,109,.16);color:#ff9db0}.chip.ok{border-color:#2ee68a;background:rgba(46,230,138,.15);color:#8dffc4}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.acts button{flex:1 1 30%;padding:11px 8px;border-radius:14px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:500 13px "Poppins",system-ui,sans-serif;transition:.2s}
+.acts button:hover{transform:translateY(-2px)}
+.acts .danger{border-color:#ff4d6d;color:#ff9db0;background:rgba(255,77,109,.12)}.acts .good{border-color:#2ee68a;color:#8dffc4;background:rgba(46,230,138,.12)}
+.reason{margin-top:8px;font-size:15px}.det{margin-top:6px;font-style:italic;color:#e7d6ff}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+.deny{padding:28px;text-align:center}
+</style></head>
+<body><canvas id="fx"></canvas>
+<main class="wrap ad page">
+  <div class="tb"><div id="top" data-hero="0" class="grow"></div><span class="tag">Admin</span></div>
+  <div class="glow"></div>
+  <div id="shell" hidden>
+    <nav class="seg" id="tabs"><button data-t="over" class="on">Overview</button><button data-t="users">Users</button><button data-t="reports">Reports<em id="rc" hidden>0</em></button></nav>
+    <div id="app"><div class="ld"></div></div>
+  </div>
+  <div id="deny" class="glass deny" hidden><h2 style="margin:0 0 8px">Not authorized</h2><p class="lead">This page is only for the app owner.</p><a class="btn nav" href="dashboard.html" style="display:block;text-decoration:none;text-align:center">Back to app</a></div>
+  <p class="foot"><a class="link nav" href="dashboard.html" style="letter-spacing:0;text-transform:none;margin-right:18px">&larr; Back to app</a><a href="#" id="out" class="link" style="letter-spacing:0;text-transform:none">Log out</a></p>
+</main>
+<div id="toast" class="toast" role="status" style="position:fixed;z-index:70;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.94);border:1.5px solid var(--hot);transition:transform .4s"></div>
+<script src="config.js"></script><script src="crushly.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const PH = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
+let tt; const say = t => { const e = $("toast"); e.textContent = t; e.style.transform = "translate(-50%,0)"; clearTimeout(tt); tt = setTimeout(() => e.style.transform = "translate(-50%,-90px)", 2600); };
+const H = h => { $("app").innerHTML = h; };
+const fdate = d => new Date(d).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
+const ago = d => { const m = Math.round((Date.now() - new Date(d)) / 6e4); return m < 60 ? Math.max(m, 1) + "m ago" : m < 1440 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago"; };
+const fail = e => `<div class="glass empty">${esc(/function|schema|relation|Not authorized/i.test(e.message) ? "Run the admin SQL in Supabase first (see instructions). " : "")}${esc(e.message)}</div>`;
+let tab = "over", rtab = "open", timer;
+
+async function over() {
+  const { data, error } = await db.rpc("admin_stats"); if (error) return H(fail(error));
+  const c = (n, l, i) => `<div class="sc" style="animation-delay:${i * 60}ms"><b>${n}</b><small>${l}</small></div>`;
+  H(`<div class="sg">${c(data.users, "Users", 0)}${c(data.new_today, "New today", 1)}${c(data.banned, "Banned", 2)}${c(data.matches, "Matches", 3)}${c(data.messages, "Messages", 4)}${c(data.dates, "Dates", 5)}${c(data.open_reports, "Open reports", 6)}</div>`);
+  badge(data.open_reports);
+}
+function badge(n) { $("rc").hidden = !n; $("rc").textContent = n; }
+async function users() {
+  H(`<input id="uq" class="search" type="search" placeholder="Search name, email or city\u2026" aria-label="Search users"><div id="ul"><div class="ld"></div></div>`);
+  $("uq").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(loadUsers, 300); }); loadUsers();
+}
+async function loadUsers() {
+  const { data, error } = await db.rpc("admin_list_users", { q: $("uq") ? $("uq").value.trim() : "" });
+  if (error) return $("ul").innerHTML = fail(error);
+  $("ul").innerHTML = data.length ? data.map((u, i) => `<article class="glass card" style="animation-delay:${Math.min(i, 8) * 40}ms"><div class="row1"><img class="av" src="${esc(u.avatar_url || PH)}" alt=""><div><b>${esc(u.display_name)}</b><small>${esc(u.email)}</small><small>${esc([u.gender, u.city, u.country].filter(Boolean).join(" \u00b7 "))} \u00b7 joined ${fdate(u.created_at)}</small></div></div>
+    ${u.is_admin ? '<span class="chip ok">Admin</span>' : ""}${u.is_banned ? '<span class="chip red">Banned</span>' : ""}
+    ${u.is_admin ? "" : `<div class="acts">${u.is_banned ? `<button class="good" data-a="unban:${u.id}">Unban</button>` : `<button class="danger" data-a="ban:${u.id}">Ban</button>`}${u.avatar_url ? `<button data-a="photo:${u.id}">Remove photo</button>` : ""}<button class="danger" data-a="del:${u.id}">Delete</button></div>`}</article>`).join("")
+    : `<div class="glass empty">No users found.</div>`;
+}
+async function reports() {
+  H(`<div class="seg"><button data-r="open" class="${rtab === "open" ? "on" : ""}">Open</button><button data-r="done" class="${rtab === "done" ? "on" : ""}">Resolved</button></div><div id="rl"><div class="ld"></div></div>`);
+  const q = db.from("reports").select("*").order("created_at", { ascending: false }).limit(100);
+  const { data, error } = await (rtab === "open" ? q.eq("status", "open") : q.neq("status", "open"));
+  if (error) return $("rl").innerHTML = fail(error);
+  const ids = [...new Set(data.flatMap(r => [r.reporter, r.reported]))], P = {};
+  if (ids.length) (await db.from("profiles").select("id,display_name,avatar_url,is_banned").in("id", ids)).data.forEach(p => P[p.id] = p);
+  const nm = id => esc((P[id] || {}).display_name || "Deleted user");
+  $("rl").innerHTML = data.length ? data.map(r => `<article class="glass card"><div class="row1"><img class="av" src="${esc((P[r.reported] || {}).avatar_url || PH)}" alt=""><div><b>${nm(r.reported)}</b><small>reported by ${nm(r.reporter)} \u00b7 ${ago(r.created_at)}</small></div></div>
+    <div class="reason"><span class="chip">${esc(r.reason)}</span>${(P[r.reported] || {}).is_banned ? '<span class="chip red">Banned</span>' : ""}</div>${r.details ? `<div class="det">\u201C${esc(r.details)}\u201D</div>` : ""}
+    ${r.status === "open" ? `<div class="acts"><button class="danger" data-a="rban:${r.id}">Ban user</button><button data-a="rdis:${r.id}">Dismiss</button></div>` : `<span class="chip ok">${esc(r.status)}</span>`}</article>`).join("")
+    : `<div class="glass empty">${rtab === "open" ? "No open reports. All clear \u2665" : "No resolved reports yet."}</div>`;
+}
+async function act(a, id) {
+  const ask = { ban: "Ban this user? They will be signed out and hidden from everyone.", del: "Permanently DELETE this user and all their data? This cannot be undone.", photo: "Remove this user's profile photo?", rban: "Ban the reported user and close this report?" };
+  if (ask[a] && !confirm(ask[a])) return;
+  const call = { ban: ["admin_set_ban", { target: id, banned: true }], unban: ["admin_set_ban", { target: id, banned: false }], del: ["admin_delete_user", { target: id }],
+    photo: ["admin_remove_photo", { target: id }], rban: ["admin_resolve_report", { rid: id, action: "ban" }], rdis: ["admin_resolve_report", { rid: id, action: "dismiss" }] }[a];
+  const { error } = await db.rpc(call[0], call[1]); if (error) return say(error.message);
+  say({ ban: "User banned", unban: "User unbanned", del: "User deleted", photo: "Photo removed", rban: "User banned, report closed", rdis: "Report dismissed" }[a]);
+  show();
+}
+function show() { document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === tab)); ({ over, users, reports }[tab])(); }
+$("tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { tab = b.dataset.t; show(); } });
+$("app").addEventListener("click", e => {
+  const b = e.target.closest("[data-a],[data-r]"); if (!b) return;
+  if (b.dataset.r) { rtab = b.dataset.r; reports(); } else { const [a, id] = b.dataset.a.split(":"); act(a, id); } });
+$("out").addEventListener("click", async e => { e.preventDefault(); await db.auth.signOut(); location.href = "index.html"; });
+(async () => {
+  const { data: { session } } = await db.auth.getSession(); if (!session) { location.href = "index.html"; return; }
+  const { data: p } = await db.from("profiles").select("is_admin").eq("id", session.user.id).maybeSingle();
+  if (!p || !p.is_admin) { $("deny").hidden = false; return; }
+  $("shell").hidden = false; show();
+  const { count } = await db.from("reports").select("*", { count: "exact", head: true }).eq("status", "open"); badge(count || 0);
+})();
+</script></body></html>

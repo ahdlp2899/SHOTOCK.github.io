@@ -34,7 +34,7 @@
 /* thread */
 body.tv{overflow:hidden}
 #thread{position:relative;z-index:1;width:100%;max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
-.th{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:24px}
+.th{display:flex;align-items:center;gap:6px;padding:10px 12px;border-radius:24px}.th .ib{width:38px;height:38px;font-size:17px}.th .av{width:40px;height:40px}
 .who{flex:1;min-width:0}.who b{display:block}.who small{color:var(--muted)}.who small.on{color:#2ee68a}
 .msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 2px}
 .day{align-self:center;padding:4px 14px;border-radius:999px;font-size:12px;color:var(--muted);background:rgba(20,10,45,.7);border:1px solid rgba(138,46,255,.4)}
@@ -96,6 +96,7 @@ body.tv{overflow:hidden}
     <div class="who"><b id="oname"></b><small id="st">Offline</small></div>
     <button class="ib" type="button" data-soon aria-label="Video call">&#127909;</button>
     <button class="ib" type="button" data-soon aria-label="Voice call">&#128222;</button>
+    <button class="ib" id="more" type="button" aria-label="More options">&#8942;</button>
   </header>
   <div id="msgs" class="msgs" aria-live="polite"></div>
   <div id="typing" class="typing" hidden><i></i><i></i><i></i></div>
@@ -120,6 +121,7 @@ body.tv{overflow:hidden}
 <div id="menu" class="sbg" hidden><div class="sheet glass">
   <button class="mb" id="m-copy" type="button">Copy</button><button class="mb" id="m-del" type="button">Delete</button><button class="mb" id="m-x" type="button">Cancel</button>
 </div></div>
+<div id="om" class="sbg" hidden><div class="sheet glass"><button class="mb" id="om-rep" type="button">Report user</button><button class="mb" id="om-blk" type="button">Block user</button><button class="mb" id="om-x" type="button">Cancel</button></div></div>
 <div id="viewer" hidden><img id="vimg" alt="Photo"></div>
 <div id="toast" class="toast" role="status"></div>
 <input type="file" id="f-cam" accept="image/*" capture="environment" hidden>
@@ -245,7 +247,7 @@ function wireUI() {
   // attach sheet
   const close = id => $(id).hidden = true;
   $("att").onclick = () => $("sheet").hidden = false;
-  ["sheet", "menu"].forEach(id => $(id).addEventListener("click", e => { if (e.target === $(id)) close(id); }));
+  ["sheet", "menu", "om"].forEach(id => $(id).addEventListener("click", e => { if (e.target === $(id)) close(id); }));
   $("viewer").onclick = () => close("viewer");
   [["s-cam", "f-cam"], ["s-gal", "f-gal"], ["s-vid", "f-vid"], ["s-doc", "f-doc"]].forEach(([b, f]) => $(b).onclick = () => { close("sheet"); $(f).click(); });
   ["f-cam", "f-gal", "f-vid", "f-doc"].forEach(id => $(id).addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return;
@@ -254,6 +256,9 @@ function wireUI() {
     navigator.geolocation.getCurrentPosition(p => send({ kind: "location", body: p.coords.latitude.toFixed(5) + "," + p.coords.longitude.toFixed(5) }), () => toast("Allow location access"), { timeout: 10000 }); };
   // long-press menu
   $("m-x").onclick = () => close("menu");
+  $("more").onclick = () => $("om").hidden = false; $("om-x").onclick = () => close("om");
+  $("om-rep").onclick = () => { close("om"); if (other) crushlyReport(other.id, other.display_name); };
+  $("om-blk").onclick = () => { close("om"); if (other) crushlyBlock(other.id, other.display_name, () => location.href = "chat.html"); };
   $("m-copy").onclick = async () => { close("menu"); try { await navigator.clipboard.writeText(sel.m.body); toast("Copied"); } catch { toast("Could not copy"); } };
   $("m-del").onclick = async () => { close("menu"); const { error } = await db.from("messages").delete().eq("id", sel.m.id);
     if (error) return toast(error.message); if (sel.m.media_url) db.storage.from("chat-media").remove([sel.m.media_url]); sel.b.remove(); shown.delete(sel.m.id); };
