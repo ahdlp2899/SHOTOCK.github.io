@@ -1,46 +1,173 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Your profile</title><link rel="stylesheet" href="style.css">
+<title>Crushly · Complete your profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="crushly.css">
+<link rel="stylesheet" href="profile.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
-<body><main class="card">
-<h1>Your profile</h1><p class="sub">This is what people see when they find you.</p>
-<label for="name">First name</label><input id="name" maxlength="40">
-<label for="dob">Date of birth</label><input id="dob" type="date">
-<label for="gender">I am</label>
-<select id="gender"><option value="">Select</option><option>Woman</option><option>Man</option><option>Non-binary</option></select>
-<label for="looking">Looking for</label>
-<select id="looking"><option value="">Select</option><option>Women</option><option>Men</option><option>Everyone</option></select>
-<label for="city">City</label><input id="city" maxlength="60">
-<label for="bio">About you</label><textarea id="bio" maxlength="500"></textarea>
-<button id="save" type="button">Save profile</button>
-<button id="out" type="button" style="background:var(--mist);color:var(--plum)">Sign out</button>
+<body><canvas id="fx"></canvas>
+<main class="wrap wide page">
+<div class="topbar"><div id="top"></div><button id="out" class="ghost" type="button">Log out</button></div>
+<nav class="steps" aria-label="Progress"><div class="step on"><i>1</i>Profile Info</div><div class="step"><i>2</i>Photos</div><div class="step"><i>3</i>Interests</div><div class="step"><i>4</i>Finish</div></nav>
+<h2 class="ptitle">Complete <span>your profile</span></h2>
+<p class="lead" style="text-align:center">Your profile helps you find better matches.</p>
+
+<form id="form" class="pgrid" novalidate>
+<section class="glass avatarcard">
+  <div class="avatar pulse" id="avatar" role="button" tabindex="0" aria-label="Upload photo">
+    <span id="cam"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ff4fb3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><small>Upload Photo</small></span>
+    <img id="img" alt="Your profile photo" hidden><span class="plus" aria-hidden="true">+</span>
+  </div>
+  <button type="button" class="btn" id="pick" style="margin-top:0">Upload Photo</button>
+  <p class="switch">JPG, PNG (Max 5MB)</p>
+  <input type="file" id="file" accept="image/jpeg,image/png" hidden>
+  <div id="perr" class="msg" role="alert"></div>
+  <div class="tip">A great profile gets you closer to your match &hearts;</div>
+</section>
+
+<section class="glass pf">
+  <div class="field" data-f="name"><label for="name">Full Name</label>
+    <div class="inp"><input id="name" maxlength="60" autocomplete="name" placeholder="Enter your full name"></div>
+    <small class="hint">Will be converted to capital letters</small><div class="err-t">Please enter your full name.</div></div>
+
+  <div class="field" data-f="dob"><label for="dob">Date of Birth</label>
+    <div class="inp"><input id="dob" type="date"></div>
+    <div class="err-t">You must be 18 or older to use Crushly.</div></div>
+
+  <div class="field" data-f="gender"><label>Gender</label>
+    <div class="pills" data-pills="gender" role="radiogroup" aria-label="Gender">
+      <button type="button" class="pill" data-v="Male">Male</button><button type="button" class="pill" data-v="Female">Female</button><button type="button" class="pill" data-v="Other">Other</button></div>
+    <div class="err-t">Choose your gender.</div></div>
+
+  <div class="field" data-f="height"><label for="height">Height (cm)</label>
+    <div class="inp"><input id="height" type="number" inputmode="numeric" min="100" max="250" placeholder="e.g. 175"></div>
+    <div class="err-t">Enter a height between 100 and 250 cm.</div></div>
+
+  <div class="field" data-f="weight"><label for="weight">Weight (kg)</label>
+    <div class="inp"><input id="weight" type="number" inputmode="numeric" min="30" max="300" placeholder="e.g. 65"></div>
+    <div class="err-t">Enter a weight between 30 and 300 kg.</div></div>
+
+  <div class="field" data-f="looking"><label>Looking For</label>
+    <div class="pills" data-pills="looking" role="radiogroup" aria-label="Looking for">
+      <button type="button" class="pill" data-v="Men">Men</button><button type="button" class="pill" data-v="Women">Women</button><button type="button" class="pill" data-v="Everyone">Everyone</button></div>
+    <div class="err-t">Choose who you are looking for.</div></div>
+
+  <div class="field" data-f="edu"><label for="edu">Education</label>
+    <div class="inp"><select id="edu"><option value="">Select your education</option><option>High School</option><option>College</option><option>Bachelor's</option><option>Master's</option><option>PhD</option><option>Other</option></select></div>
+    <div class="err-t">Select your education.</div></div>
+
+  <div class="field" data-f="address"><label for="city">Address</label>
+    <div class="tri inp">
+      <input id="city" placeholder="City" autocomplete="address-level2">
+      <input id="state" placeholder="State" autocomplete="address-level1">
+      <input id="country" placeholder="Country" list="countries" autocomplete="country-name">
+    </div>
+    <datalist id="countries"><option>India</option><option>United States</option><option>United Kingdom</option><option>Canada</option><option>Australia</option><option>United Arab Emirates</option><option>Saudi Arabia</option><option>Pakistan</option><option>Bangladesh</option><option>Nepal</option><option>Sri Lanka</option><option>Singapore</option><option>Malaysia</option><option>Germany</option><option>France</option><option>Italy</option><option>Spain</option><option>Netherlands</option><option>South Africa</option><option>Nigeria</option><option>Brazil</option><option>Mexico</option><option>Philippines</option><option>Indonesia</option></datalist>
+    <div class="err-t">Enter at least your city and country.</div></div>
+
+  <div class="field"><label for="bio">Describe Yourself</label>
+    <div class="inp"><textarea id="bio" maxlength="250" placeholder="Tell us about yourself…"></textarea></div>
+    <div class="count" id="count">0/250</div></div>
+</section>
+
 <div id="msg" class="msg" role="alert"></div>
+<div class="bar glass">
+  <div class="prog">Step 1 of 4<div class="track"><b></b></div></div>
+  <button id="go" class="btn" type="submit">Save &amp; Continue &rarr;</button>
+</div>
+</form>
 </main>
-<script src="config.js"></script>
+<script src="config.js"></script><script src="crushly.js"></script>
 <script>
-const $=id=>document.getElementById(id);let uid;
-function age(d){const b=new Date(d),n=new Date();let a=n.getFullYear()-b.getFullYear();
-  if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;return a}
-(async()=>{
-  const {data:{session}}=await db.auth.getSession();
-  if(!session){location.href="index.html";return}
-  uid=session.user.id;
-  const {data:p}=await db.from("profiles").select("*").eq("id",uid).maybeSingle();
-  if(p){$("name").value=p.display_name;$("dob").value=p.birthdate;$("gender").value=p.gender||"";
-    $("looking").value=p.looking_for||"";$("city").value=p.city||"";$("bio").value=p.bio||""}
+// Where "Save & Continue" goes next. Leave empty until Step 2 (photos page) exists.
+const NEXT_PAGE = "";
+
+const $ = id => document.getElementById(id);
+const vals = { gender: "", looking: "" };
+let uid, avatarUrl = null;
+
+const age = d => { const b = new Date(d), n = new Date(); let a = n.getFullYear() - b.getFullYear();
+  if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) a--; return a; };
+
+// glowing pill selectors
+function pick(group, v) {
+  vals[group] = v || "";
+  document.querySelectorAll(`[data-pills="${group}"] .pill`).forEach(b => {
+    const on = b.dataset.v === v; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
+}
+document.querySelectorAll(".pill").forEach(b => b.addEventListener("click", () => {
+  pick(b.parentElement.dataset.pills, b.dataset.v); b.closest(".field").classList.remove("err"); }));
+document.querySelectorAll(".field input,.field select").forEach(i => i.addEventListener("input", () => i.closest(".field").classList.remove("err")));
+
+// name -> ALL CAPS while typing
+$("name").addEventListener("input", e => { const el = e.target, s = el.selectionStart, t = el.selectionEnd;
+  el.value = el.value.toUpperCase(); el.setSelectionRange(s, t); });
+// live counter
+$("bio").addEventListener("input", () => $("count").textContent = $("bio").value.length + "/250");
+
+// avatar
+const av = $("avatar");
+function showImg(src) {
+  $("img").hidden = !src; $("cam").style.display = src ? "none" : ""; if (src) $("img").src = src; }
+const choose = () => $("file").click();
+av.addEventListener("click", choose); $("pick").addEventListener("click", choose);
+av.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(); } });
+$("file").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return; $("perr").textContent = "";
+  if (!["image/jpeg", "image/png"].includes(f.type)) { $("perr").textContent = "Use a JPG or PNG photo."; return; }
+  if (f.size > 5 * 1024 * 1024) { $("perr").textContent = "Photo must be under 5MB."; return; }
+  showImg(URL.createObjectURL(f)); av.classList.remove("pulse"); av.classList.add("up");
+  const path = `${uid}/avatar.${f.type === "image/png" ? "png" : "jpg"}`;
+  const { error } = await db.storage.from("avatars").upload(path, f, { upsert: true, contentType: f.type });
+  av.classList.remove("up");
+  if (error) { $("perr").textContent = "Upload failed: " + error.message; showImg(avatarUrl); if (!avatarUrl) av.classList.add("pulse"); return; }
+  avatarUrl = db.storage.from("avatars").getPublicUrl(path).data.publicUrl + "?v=" + Date.now();
+});
+
+// load existing profile
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { location.href = "index.html"; return; }
+  uid = session.user.id;
+  const { data: p } = await db.from("profiles").select("*").eq("id", uid).maybeSingle();
+  if (!p) return;
+  $("name").value = p.display_name || ""; $("dob").value = p.birthdate || "";
+  pick("gender", p.gender); pick("looking", p.looking_for);
+  $("height").value = p.height_cm || ""; $("weight").value = p.weight_kg || ""; $("edu").value = p.education || "";
+  $("city").value = p.city || ""; $("state").value = p.state || ""; $("country").value = p.country || "";
+  $("bio").value = p.bio || ""; $("count").textContent = $("bio").value.length + "/250";
+  if (p.avatar_url) { avatarUrl = p.avatar_url; showImg(avatarUrl); av.classList.remove("pulse"); }
 })();
-$("save").onclick=async()=>{
-  const msg=$("msg");msg.className="msg";
-  const v={id:uid,display_name:$("name").value.trim(),birthdate:$("dob").value,gender:$("gender").value,
-    looking_for:$("looking").value,city:$("city").value.trim(),bio:$("bio").value.trim()};
-  if(!v.display_name||!v.birthdate||!v.gender||!v.looking_for){msg.textContent="Fill in name, date of birth, and both dropdowns.";return}
-  if(age(v.birthdate)<18){msg.textContent="You must be 18 or older to use this app.";return}
-  $("save").disabled=true;
-  const {error}=await db.from("profiles").upsert(v);
-  $("save").disabled=false;
-  if(error){msg.textContent=error.message;return}
-  msg.className="msg ok";msg.textContent="Saved.";
-  setTimeout(()=>location.href="photos.html",700); // Step 3
-};
-$("out").onclick=async()=>{await db.auth.signOut();location.href="index.html"};
+
+// save
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const v = { name: $("name").value.trim().toUpperCase(), dob: $("dob").value, height: +$("height").value, weight: +$("weight").value,
+    edu: $("edu").value, city: $("city").value.trim(), state: $("state").value.trim(), country: $("country").value.trim() };
+  const bad = [];
+  if (v.name.length < 2) bad.push("name");
+  if (!v.dob || age(v.dob) < 18 || age(v.dob) > 120) bad.push("dob");
+  if (!vals.gender) bad.push("gender");
+  if (!(v.height >= 100 && v.height <= 250)) bad.push("height");
+  if (!(v.weight >= 30 && v.weight <= 300)) bad.push("weight");
+  if (!vals.looking) bad.push("looking");
+  if (!v.edu) bad.push("edu");
+  if (!v.city || !v.country) bad.push("address");
+  document.querySelectorAll(".field").forEach(f => f.classList.remove("err"));
+  if (bad.length) {
+    bad.forEach(k => { const f = document.querySelector(`[data-f="${k}"]`); void f.offsetWidth; f.classList.add("err"); });
+    document.querySelector(`[data-f="${bad[0]}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+    crushly.msg("Please fix the highlighted fields."); return;
+  }
+  $("go").disabled = true;
+  const { error } = await db.from("profiles").upsert({ id: uid, display_name: v.name, birthdate: v.dob, gender: vals.gender,
+    looking_for: vals.looking, height_cm: v.height, weight_kg: v.weight, education: v.edu, city: v.city, state: v.state,
+    country: v.country, bio: $("bio").value.trim(), avatar_url: avatarUrl });
+  $("go").disabled = false;
+  if (error) { crushly.msg(/column|schema/i.test(error.message) ? "Database needs the upgrade: run profile-upgrade.sql in Supabase first." : error.message); return; }
+  crushly.msg("Profile saved \u2665", true);
+  if (NEXT_PAGE) setTimeout(() => location.href = NEXT_PAGE, 700);
+});
+$("out").addEventListener("click", async () => { await db.auth.signOut(); location.href = "index.html"; });
 </script></body></html>
