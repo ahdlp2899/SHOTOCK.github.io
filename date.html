@@ -1,0 +1,226 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crushly · Dates</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="crushly.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+[hidden]{display:none!important}
+.wrap.dt{max-width:480px;padding-bottom:120px}
+.ld{width:34px;height:34px;margin:60px auto;border-radius:50%;border:3px solid rgba(138,46,255,.3);border-top-color:var(--pink);animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;color:var(--hot)}
+.hb{display:flex;align-items:center;gap:12px;margin:8px 0 14px}.hb h2{margin:0;font-size:20px;font-weight:600}
+.ib2{width:42px;height:42px;padding:0;border-radius:50%;border:1.5px solid rgba(255,45,141,.5);background:rgba(20,10,45,.6);color:#fff;font-size:20px;cursor:pointer}
+.hw{position:relative;min-height:150px;margin-top:6px}
+.hw h1{margin:16px 0 4px;font-size:30px;font-weight:700;max-width:60%;line-height:1.15}.hw p{margin:0;max-width:55%;color:var(--muted)}
+.heroart{position:absolute;right:-92px;top:-40px;width:250px;pointer-events:none;transform:scale(.7);transform-origin:top right}
+.big{display:flex;align-items:center;gap:14px;width:100%;padding:18px;margin-top:14px;border-radius:26px;text-align:left;color:#fff;font:inherit;cursor:pointer;border:1.5px solid rgba(255,45,141,.6);background:linear-gradient(135deg,rgba(255,45,141,.3),rgba(138,46,255,.25));box-shadow:0 0 26px rgba(255,45,141,.25);transition:.25s;animation:in .5s both}
+.big:hover{transform:translateY(-3px);box-shadow:0 0 34px rgba(255,45,141,.5)}
+.big .t{width:56px;height:56px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;background:rgba(255,45,141,.2);border:1px solid var(--pink)}
+.big .t .ic{width:28px;height:28px}.big b{display:block;font-size:18px}.big small{color:var(--muted)}
+.bd{margin-left:auto;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--pink);display:grid;place-items:center;font-size:13px;font-weight:600;box-shadow:0 0 10px var(--pink)}
+.qs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.qs div{padding:14px 6px;border-radius:16px;border:1px solid rgba(138,46,255,.5);background:rgba(20,10,45,.6);text-align:center}.qs b{display:block;font-size:24px}.qs small{color:var(--muted)}
+.seg{display:flex;gap:6px;padding:5px;border-radius:999px;border:1px solid rgba(138,46,255,.5);background:rgba(20,10,45,.6);margin-bottom:14px}
+.seg button{flex:1;padding:10px 6px;border:0;border-radius:999px;background:none;color:var(--muted);font:500 14px "Poppins",system-ui,sans-serif;cursor:pointer;transition:.3s}
+.seg .on{color:#fff;background:linear-gradient(135deg,rgba(255,45,141,.6),rgba(138,46,255,.6));box-shadow:0 0 14px rgba(255,45,141,.6)}
+.seg em{font-style:normal;margin-left:4px;padding:1px 7px;border-radius:9px;background:rgba(255,255,255,.18);font-size:12px}
+.dc{padding:16px;margin-bottom:14px;animation:in .5s both;animation-delay:calc(var(--i,0)*70ms)}
+.dh{display:flex;gap:12px;align-items:center}.dh div{flex:1;min-width:0}.dh small{display:block;color:var(--muted)}.dh time{font-size:12px;color:var(--muted)}
+.av{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--hot);box-shadow:0 0 12px rgba(255,45,141,.5);flex:0 0 auto}.av3{width:78px;height:78px}
+.dr{margin-top:10px;font-size:14px}
+.chip{display:inline-block;padding:4px 12px;border-radius:999px;font-size:13px;border:1px solid var(--hot);background:rgba(255,45,141,.15)}
+.chip.ok{border-color:#2ee68a;background:rgba(46,230,138,.15);color:#8dffc4}
+.dn{margin-top:10px;font-style:italic;color:#e7d6ff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;align-items:center}
+.acc,.rej{padding:13px;border-radius:14px;font:600 15px "Poppins",system-ui,sans-serif;cursor:pointer;color:#fff;transition:.2s}
+.acc{border:1.5px solid #2ee68a;background:rgba(46,230,138,.18);box-shadow:0 0 16px rgba(46,230,138,.4)}
+.rej{border:1.5px solid #ff4d6d;background:rgba(255,77,109,.16)}.acc:hover,.rej:hover{transform:translateY(-2px)}
+.wait{color:var(--muted)}
+.st{margin-top:12px;text-align:center;padding:10px;border-radius:12px;background:rgba(255,77,109,.14);border:1px solid #ff4d6d;color:#ff9db0}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+.f{margin-top:14px}.f label{display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:6px}
+.f input,.f select,.f textarea{width:100%;padding:14px;border-radius:14px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:16px "Poppins",system-ui,sans-serif;color-scheme:dark}
+.f textarea{min-height:90px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{outline:0;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,79,179,.25),0 0 18px rgba(255,45,141,.45)}
+.cnt{text-align:right;font-size:12px;color:var(--muted);margin-top:4px}
+.kinds{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kinds button{padding:12px 4px;border-radius:16px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:500 12px "Poppins",system-ui,sans-serif;cursor:pointer;transition:.25s}
+.kinds span{display:block;font-size:24px}.kinds .on{border-color:var(--hot);background:linear-gradient(135deg,rgba(255,45,141,.4),rgba(138,46,255,.4));box-shadow:0 0 16px rgba(255,45,141,.6)}
+.pc{display:flex;gap:14px;align-items:center;padding:14px}.pc div{flex:1;min-width:0}.pc small{color:var(--muted)}
+.pc select{width:100%;margin-top:4px;padding:8px;border-radius:10px;border:1px solid rgba(138,46,255,.55);background:rgba(20,10,45,.8);color:#fff;font:16px "Poppins",system-ui,sans-serif;color-scheme:dark}
+.fly{animation:glow .5s ease both,fly .6s .5s ease-in both}
+@keyframes glow{50%{box-shadow:0 0 60px var(--pink)}}@keyframes fly{to{transform:translateY(-130%) scale(.95);opacity:0}}
+.tkt{padding:22px 16px;text-align:center;border-color:var(--hot);animation:in .6s both}
+.pill{display:inline-block;padding:8px 22px;border-radius:999px;border:1.5px solid var(--hot);background:rgba(255,45,141,.18);font-weight:700;letter-spacing:.12em;margin-top:6px}
+.ppl{display:flex;justify-content:space-around;align-items:center;margin:16px 0}.ppl div{display:flex;flex-direction:column;align-items:center;gap:4px}.ppl small{color:var(--muted)}
+.hh{font-size:30px;color:var(--pink);text-shadow:0 0 14px var(--pink)}
+.tg{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;text-align:left}
+.info,.qr{padding:12px;border-radius:16px;border:1px solid rgba(138,46,255,.5);background:rgba(20,10,45,.6);font-size:13px}.info .dr:first-child{margin-top:0}
+.qr{text-align:center}.qr svg{width:100%;background:#fff;padding:6px;border-radius:8px;margin-bottom:6px}.qr small{display:block;color:var(--muted);margin-bottom:6px}
+.tid{margin-top:10px;padding:10px 14px;border-radius:14px;border:1px solid rgba(138,46,255,.5);text-align:left}.tid small{display:block;color:var(--muted)}
+.two2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.sb{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:18px;border:1.5px solid rgba(255,45,141,.55);background:rgba(20,10,45,.6);color:#fff;font:500 14px "Poppins",system-ui,sans-serif;text-decoration:none;cursor:pointer;width:100%}
+.sb.danger{border-color:#ff4d6d;color:#ff9db0}
+.mc{overflow:hidden;margin-bottom:14px;animation:in .5s both;animation-delay:calc(var(--i,0)*70ms)}
+.mh{height:100px;display:grid;place-items:center;font-size:48px;background:linear-gradient(135deg,rgba(255,45,141,.5),rgba(138,46,255,.5))}.mb2{padding:14px}.mb2 b{font-size:18px}
+.link2{display:block;text-align:center;margin-top:16px;color:var(--hot);background:none;border:0;font:500 15px "Poppins",system-ui,sans-serif;cursor:pointer;width:100%}
+</style></head>
+<body><canvas id="fx"></canvas>
+<main class="wrap dt page"><div id="top" data-hero="0"></div><div id="app"><div class="ld"></div></div></main>
+<script src="config.js"></script><script src="crushly.js"></script><script src="nav.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const toast = t => window.crushlyToast && window.crushlyToast(t);
+const PH = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
+const HP = "M50 90C18 66 4 46 4 28 4 14 15 5 28 5c9 0 17 5 22 13C55 10 63 5 72 5c13 0 24 9 24 23 0 18-14 38-46 62Z";
+const IC = { cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  pin: '<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>', ticket: '<path d="M3 8a2 2 0 0 1 0 0V6h18v2a2 2 0 0 0 0 8v2H3v-2a2 2 0 0 0 0-8z"/><path d="M9 6v12" stroke-dasharray="2 2"/>',
+  mail: '<path d="M3 6h18v12H3z"/><path d="M3 7l9 7 9-7"/>', note: '<path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4"/>' };
+const ic = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const KIND = { Dinner: "\uD83C\uDF77", Coffee: "\u2615", Movie: "\uD83C\uDFAC", "Long Drive": "\uD83D\uDE97" };
+const fd = d => new Date(d + "T00:00").toLocaleDateString([], { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const ft = t => new Date("1970-01-01T" + t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+const ago = d => { const m = Math.round((Date.now() - new Date(d)) / 6e4); return m < 1 ? "just now" : m < 60 ? m + "m ago" : m < 1440 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago"; };
+const ageOf = d => { if (!d) return ""; const b = new Date(d), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) a--; return a; };
+const pic = (p, c) => `<img class="av ${c || ""}" src="${esc(p.avatar_url || PH)}" alt="">`;
+const first = p => (p.display_name || "").split(" ")[0];
+const mapUrl = pl => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(pl);
+const bar = t => `<div class="hb"><button class="ib2" data-back aria-label="Back">&larr;</button><h2>${t}</h2></div>`;
+const H = h => { $("app").innerHTML = h; };
+let uid, me, D = [], M = [], tab = "pending", mtab = "up", ck = "";
+
+async function profilesOf(ids) { if (!ids.length) return {}; const { data } = await db.from("profiles").select("id,display_name,birthdate,avatar_url").in("id", ids); return Object.fromEntries((data || []).map(p => [p.id, p])); }
+async function loadDates() {
+  const { data } = await db.from("dates").select("*").order("created_at", { ascending: false });
+  const rows = data || [], P = await profilesOf([...new Set(rows.map(d => d.sender === uid ? d.receiver : d.sender))]);
+  D = rows.map(d => ({ ...d, out: d.sender === uid, p: P[d.sender === uid ? d.receiver : d.sender] || { display_name: "Someone" } }));
+}
+async function loadMatches() {
+  const { data: ms } = await db.from("matches").select("id,user_a,user_b"); if (!ms) { M = []; return; }
+  const P = await profilesOf(ms.map(m => m.user_a === uid ? m.user_b : m.user_a));
+  M = ms.map(m => ({ mid: m.id, p: P[m.user_a === uid ? m.user_b : m.user_a] || { id: "", display_name: "Someone" } })).filter(m => m.p.id);
+}
+const when = d => new Date(d.date_on + "T" + d.time_at);
+
+/* ----- cards ----- */
+function card(d, i) {
+  const inc = !d.out && d.status === "pending", who = esc(d.p.display_name) + (d.p.birthdate ? ", " + ageOf(d.p.birthdate) : "");
+  return `<article class="glass dc" style="--i:${i}"><div class="dh">${pic(d.p)}<div><b>${who}</b><small>${inc ? "Wants to go on a date with you" : d.out ? "You invited " + esc(first(d.p)) : "Date with you"}</small></div><time>${ago(d.created_at)}</time></div>
+  <div class="dr">${ic("cal")} ${fd(d.date_on)}</div><div class="dr">${ic("clock")} ${ft(d.time_at)}</div><div class="dr">${ic("pin")} ${esc(d.place)}</div>
+  <div class="dr"><span class="chip">${KIND[d.kind] || ""} ${esc(d.kind)}</span></div>${d.note ? `<div class="dn">\u201C${esc(d.note)}\u201D</div>` : ""}
+  ${inc ? `<div class="two"><button class="acc" data-act="accept:${d.id}">Accept</button><button class="rej" data-act="reject:${d.id}">Reject</button></div>`
+    : d.status === "pending" ? `<div class="two"><small class="wait">Waiting for ${esc(first(d.p))}\u2026</small><button class="rej" data-act="cancel:${d.id}">Cancel</button></div>`
+    : d.status === "confirmed" ? `<button class="btn" data-go="#ticket/${d.id}" style="margin-top:14px">View Ticket</button>`
+    : `<div class="st">${d.status === "cancelled" ? "Cancelled" : "Rejected"}</div>`}</article>`;
+}
+const seg = (items, cur, attr) => `<div class="seg">${items.map(([k, l, n]) => `<button class="${k === cur ? "on" : ""}" ${attr}="${k}">${l}${n != null ? `<em>${n}</em>` : ""}</button>`).join("")}</div>`;
+
+/* ----- views ----- */
+function renderHome() {
+  const inc = D.filter(d => !d.out && d.status === "pending").length, c = s => D.filter(d => d.status === s).length;
+  H(`<section class="hw"><div class="heroart" id="heroart" aria-hidden="true"></div><h1>Date Dashboard</h1><p>Turn your match into a real moment.</p></section>
+  <button class="big" data-go="#create"><span class="t">${ic("ticket")}</span><span><b>Create Date Ticket</b><small>Plan a date with your match and send a request.</small></span></button>
+  <button class="big" data-go="#requests" style="animation-delay:.1s"><span class="t">${ic("mail")}</span><span><b>Accept Date Request</b><small>View and respond to date requests from your matches.</small></span>${inc ? `<span class="bd">${inc}</span>` : ""}</button>
+  <section class="glass" style="padding:16px;margin-top:14px"><b>Quick Stats</b><div class="qs"><div><b>${c("pending")}</b><small>Pending</small></div><div><b>${c("confirmed")}</b><small>Confirmed</small></div><div><b>${c("rejected")}</b><small>Rejected</small></div></div></section>
+  <button class="link2" data-go="#mine">My Dates &rarr;</button>`);
+  $("heroart").innerHTML = crushly.heroHTML;
+}
+function renderRequests() {
+  const g = s => D.filter(d => s.includes(d.status)), list = g(tab === "rejected" ? ["rejected", "cancelled"] : [tab]);
+  H(bar("Date Requests") + seg([["pending", "Pending", g(["pending"]).length], ["confirmed", "Confirmed", g(["confirmed"]).length], ["rejected", "Rejected", g(["rejected", "cancelled"]).length]], tab, "data-tab")
+    + (list.length ? list.map(card).join("") : `<div class="glass empty">Nothing here yet.</div>`));
+}
+function renderMine() {
+  const now = new Date(), c = D.filter(d => d.status === "confirmed"), up = c.filter(d => when(d) >= now).sort((a, b) => when(a) - when(b)), past = c.filter(d => when(d) < now);
+  const list = mtab === "up" ? up : past;
+  H(bar("My Dates") + seg([["up", "Upcoming", up.length], ["past", "Past", past.length]], mtab, "data-mtab")
+    + (list.length ? list.map((d, i) => `<article class="glass mc" style="--i:${i}"><div class="mh">${KIND[d.kind] || "\u2665"}</div><div class="mb2"><span class="chip ok">Confirmed</span><div style="margin-top:8px"><b>${esc(d.kind)} Date</b></div><small style="color:var(--muted)">With ${esc(d.p.display_name)}</small>
+      <div class="dr">${ic("cal")} ${fd(d.date_on)} &middot; ${ft(d.time_at)}</div><div class="dr">${ic("pin")} ${esc(d.place)}</div><button class="btn" data-go="#ticket/${d.id}" style="margin-top:14px">View Details</button></div></article>`).join("")
+      : `<div class="glass empty">No ${mtab === "up" ? "upcoming" : "past"} dates yet.</div>`));
+}
+async function renderCreate(pre) {
+  if (!M.length) await loadMatches();
+  if (!M.length) { H(bar("Create Date Ticket") + `<div class="glass empty">Dates are for matches. Like someone from Today\u2019s Picks \u2014 when it\u2019s mutual, you can plan a date here \u2665</div>`); return; }
+  const cur = M.find(m => m.mid === pre) || M[0], today = new Date().toLocaleDateString("en-CA"); ck = "";
+  H(`${bar("Create Date Ticket")}<div id="tk" class="glass" style="padding:16px"><b style="font-size:19px">Plan something special</b><p class="lead" style="margin:4px 0 12px;font-size:13px">Choose the details and send a date request to your match.</p>
+  <div class="glass pc" style="border-radius:20px"><img class="av" id="pimg" src="${esc(cur.p.avatar_url || PH)}" alt=""><div><b id="pnm">${esc(cur.p.display_name)}${cur.p.birthdate ? ", " + ageOf(cur.p.birthdate) : ""}</b><select id="partner" aria-label="Partner">${M.map(m => `<option value="${m.mid}" ${m.mid === cur.mid ? "selected" : ""}>${esc(m.p.display_name)}</option>`).join("")}</select></div></div>
+  <div class="f"><label for="cd">${ic("cal")} Date</label><input id="cd" type="date" min="${today}"></div>
+  <div class="f"><label for="ct">${ic("clock")} Time</label><input id="ct" type="time"></div>
+  <div class="f"><label for="cp">${ic("pin")} Location</label><input id="cp" maxlength="120" placeholder="Restaurant, caf\u00E9, place\u2026" autocomplete="off"></div>
+  <div class="f"><label>Date Type</label><div class="kinds">${Object.keys(KIND).map(k => `<button type="button" data-kind="${k}"><span>${KIND[k]}</span>${k}</button>`).join("")}</div></div>
+  <div class="f"><label for="cn">${ic("note")} Special Note (Optional)</label><textarea id="cn" maxlength="200" placeholder="Let\u2019s have a great time together!"></textarea><div class="cnt" id="cc">0/200</div></div>
+  <div id="cerr" class="msg" role="alert"></div><button id="cs" class="btn" style="margin-top:6px">Send Date Request &rarr;</button></div>`);
+  $("partner").onchange = e => { const m = M.find(x => x.mid === e.target.value); $("pimg").src = m.p.avatar_url || PH; $("pnm").textContent = m.p.display_name + (m.p.birthdate ? ", " + ageOf(m.p.birthdate) : ""); };
+  $("cn").oninput = () => $("cc").textContent = $("cn").value.length + "/200";
+  $("cs").onclick = sendReq;
+}
+async function sendReq() {
+  const v = { mid: $("partner").value, date: $("cd").value, time: $("ct").value, place: $("cp").value.trim(), note: $("cn").value.trim() }, err = $("cerr"), today = new Date().toLocaleDateString("en-CA");
+  const bad = !v.date || v.date < today ? "Pick today or a future date." : !v.time ? "Pick a time." : v.date === today && v.time < new Date().toTimeString().slice(0, 5) ? "That time has already passed." : v.place.length < 2 ? "Enter a location." : !ck ? "Choose a date type." : "";
+  if (bad) { err.textContent = bad; return; }
+  const m = M.find(x => x.mid === v.mid); $("cs").disabled = true; err.textContent = "";
+  const { error } = await db.from("dates").insert({ match_id: v.mid, sender: uid, receiver: m.p.id, date_on: v.date, time_at: v.time, place: v.place, kind: ck, note: v.note || null });
+  if (error) { $("cs").disabled = false; err.textContent = /relation|schema|dates/i.test(error.message) ? "Database needs the date upgrade: run the date SQL in Supabase first." : error.message; return; }
+  $("tk").classList.add("fly");
+  setTimeout(async () => { await loadDates(); tab = "pending"; location.hash = "#requests"; toast("Date request sent \u2665"); }, 1100);
+}
+function qr(seed) {
+  let h = 7; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0; let r = "";
+  for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
+    let on; const f = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13);
+    if (f) { const cx = x < 7 ? x : x - 14, cy = y < 7 ? y : y - 14; on = cx === 0 || cx === 6 || cy === 0 || cy === 6 || (cx >= 2 && cx <= 4 && cy >= 2 && cy <= 4); }
+    else { h = (h * 1103515245 + 12345) >>> 0; on = (h >>> 16) & 1; }
+    if (on) r += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+  }
+  return `<svg viewBox="0 0 21 21" shape-rendering="crispEdges" fill="#1a1626" aria-label="QR placeholder">${r}</svg>`;
+}
+function renderTicket(id) {
+  const d = D.find(x => x.id === id); if (!d) { H(bar("Date Ticket") + `<div class="glass empty">Date not found.</div>`); return; }
+  const conf = d.status === "confirmed", inc = !d.out && d.status === "pending";
+  const label = { confirmed: "DATE CONFIRMED", pending: "DATE REQUEST", rejected: "DATE REJECTED", cancelled: "DATE CANCELLED" }[d.status];
+  H(`${bar("Date Ticket")}<section class="glass tkt"><svg viewBox="0 0 100 100" width="52" height="52" aria-hidden="true"><path d="${HP}" fill="none" stroke="#FF2D8D" stroke-width="7" stroke-linejoin="round" transform="translate(-6 -4) scale(.9)"/><path d="${HP}" fill="none" stroke="#8A2EFF" stroke-width="6" stroke-linejoin="round" transform="translate(14 8) scale(.8)"/></svg>
+  <div><span class="pill">${label}</span></div>
+  <div class="ppl"><div>${pic(me, "av3")}<small>You</small><b>${esc(first(me))}</b><small>Age ${ageOf(me.birthdate)}</small></div><span class="hh">\u2665</span><div>${pic(d.p, "av3")}<small style="color:var(--hot)">${esc(first(d.p))}</small><b>${esc(d.p.display_name)}</b><small>Age ${ageOf(d.p.birthdate)}</small></div></div>
+  <div class="tg"><div class="info"><div class="dr">${ic("cal")} ${fd(d.date_on)}</div><div class="dr">${ic("clock")} ${ft(d.time_at)}</div><div class="dr">${ic("pin")} ${esc(d.place)}</div><div class="dr">${KIND[d.kind] || ""} ${esc(d.kind)}</div></div>
+  <div class="qr">${qr(d.ticket || d.id)}<small>Scan for details</small><span class="chip ok">${conf ? "Confirmed" : d.status}</span></div></div>
+  ${d.note ? `<div class="dn" style="text-align:left">\u201C${esc(d.note)}\u201D</div>` : ""}<div class="tid"><small>Ticket ID</small><b>${esc(d.ticket || "")}</b></div></section>
+  ${inc ? `<div class="two"><button class="acc" data-act="accept:${d.id}">Accept</button><button class="rej" data-act="reject:${d.id}">Reject</button></div>` : ""}
+  ${conf ? `<div class="two2"><a class="sb" href="${mapUrl(d.place)}" target="_blank" rel="noopener">${ic("pin")} View Location</a><a class="sb" href="chat.html?m=${d.match_id}">Chat Partner</a></div><button class="sb danger" style="margin-top:12px" data-act="cancel:${d.id}">Cancel Date</button>` : ""}
+  ${!d.out || d.status !== "pending" ? "" : `<button class="sb danger" style="margin-top:12px" data-act="cancel:${d.id}">Cancel Request</button>`}`);
+}
+
+/* ----- routing + actions ----- */
+function route() {
+  const [v, a] = (location.hash.slice(1) || "home").split("/"); $("top").hidden = v !== "home";
+  ({ home: renderHome, requests: renderRequests, mine: renderMine, create: () => renderCreate(a), ticket: () => renderTicket(a) }[v] || renderHome)(); window.scrollTo(0, 0);
+}
+async function act(a, id) {
+  if (a === "cancel" && !confirm("Cancel this date?")) return;
+  window.__quiet = Date.now();
+  const { error } = await db.rpc("respond_date", { did: id, action: a });
+  if (error) return toast(error.message);
+  await loadDates(); toast(a === "accept" ? "Date confirmed \u2665" : a === "reject" ? "Request rejected" : "Date cancelled");
+  const h = a === "accept" ? "#ticket/" + id : location.hash; if (location.hash === h) route(); else location.hash = h;
+}
+$("app").addEventListener("click", e => {
+  const t = e.target.closest("[data-go],[data-act],[data-tab],[data-mtab],[data-back],[data-kind]"); if (!t) return;
+  if (t.dataset.go) location.hash = t.dataset.go;
+  else if (t.dataset.back) history.length > 1 ? history.back() : (location.hash = "#home");
+  else if (t.dataset.tab) { tab = t.dataset.tab; renderRequests(); }
+  else if (t.dataset.mtab) { mtab = t.dataset.mtab; renderMine(); }
+  else if (t.dataset.act) { const [a, id] = t.dataset.act.split(":"); act(a, id); }
+  else if (t.dataset.kind) { ck = t.dataset.kind; document.querySelectorAll("[data-kind]").forEach(x => x.classList.toggle("on", x === t)); }
+});
+addEventListener("hashchange", route);
+(async () => {
+  const { data: { session } } = await db.auth.getSession(); if (!session) { location.href = "index.html"; return; }
+  uid = session.user.id;
+  const { data: p } = await db.from("profiles").select("id,display_name,birthdate,avatar_url").eq("id", uid).maybeSingle();
+  if (!p) { location.href = "profile.html"; return; }
+  me = p; await loadDates(); route();
+  db.channel("dates-live").on("postgres_changes", { event: "*", schema: "public", table: "dates" }, async () => { await loadDates(); if (!location.hash.startsWith("#create")) route(); }).subscribe();
+})();
+</script></body></html>

@@ -50,7 +50,7 @@
 .datecard{display:flex;gap:14px;align-items:center;padding:18px;margin-top:6px}
 .datecard .ic{width:54px;height:54px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;color:var(--hot);background:rgba(255,45,141,.16);border:1px solid var(--pink)}
 .datecard b{display:block;font-size:17px}.datecard p{margin:4px 0 0;font-size:13px;color:var(--muted)}
-.mini{margin-top:10px;padding:9px 16px;border-radius:999px;border:1.5px solid var(--hot);background:rgba(255,45,141,.12);color:#fff;font:500 13px "Poppins",system-ui,sans-serif;cursor:pointer}
+.mini{display:inline-block;text-decoration:none;margin-top:10px;padding:9px 16px;border-radius:999px;border:1.5px solid var(--hot);background:rgba(255,45,141,.12);color:#fff;font:500 13px "Poppins",system-ui,sans-serif;cursor:pointer}
 /* quick actions */
 .qa{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .qa>*{display:flex;align-items:center;gap:12px;padding:14px;border-radius:20px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;text-align:left;font:500 14px "Poppins",system-ui,sans-serif;cursor:pointer;text-decoration:none;transition:.2s}
@@ -93,7 +93,7 @@
 <section class="sec" style="--i:4">
   <div class="shead"><h3>Upcoming Date</h3></div>
   <div class="glass datecard"><div class="ic i" data-i="cal"></div>
-    <div><b>No date planned yet</b><p>Match with someone, then turn it into a date.</p><button class="mini" type="button" data-soon>Plan a Date &rarr;</button></div></div>
+    <div><b id="dt-b">No date planned yet</b><p id="dt-p">Match with someone, then turn it into a date.</p><a id="dt-a" class="mini nav" href="date.html#create">Plan a Date &rarr;</a></div></div>
 </section>
 
 <section class="sec" style="--i:5">
@@ -101,7 +101,7 @@
   <div class="qa">
     <a href="profile.html" class="nav"><span class="i" data-i="pen"></span><span>Edit Profile<small>Update your info</small></span></a>
     <button type="button" id="find"><span class="i" data-i="search"></span><span>Find Matches<small>Discover new people</small></span></button>
-    <button type="button" data-soon><span class="i" data-i="cal"></span><span>Plan Date<small>Turn matches into dates</small></span></button>
+    <a href="date.html#create" class="nav"><span class="i" data-i="cal"></span><span>Plan Date<small>Turn matches into dates</small></span></a>
     <button type="button" data-soon><span class="i" data-i="star"></span><span>Premium<small>Get more features</small></span></button>
   </div>
 </section>
@@ -170,7 +170,14 @@ async function like(x, card, btn) {
     db.from("likes").select("to_user").eq("from_user", uid),
     db.from("profiles").select("id,display_name,birthdate,city,education,avatar_url,gender").neq("id", uid).limit(40)]);
   const likes = l.count || 0;
-  count($("s-likes"), likes); count($("s-chats"), m.count || 0); count($("s-date"), 0); count($("s-views"), 0);
+  count($("s-likes"), likes); count($("s-chats"), m.count || 0); count($("s-views"), 0);
+  const today = new Date().toLocaleDateString("en-CA");
+  const { data: nd, count: nc } = await db.from("dates").select("id,kind,date_on,time_at,place", { count: "exact" }).eq("status", "confirmed").gte("date_on", today).order("date_on").order("time_at").limit(1);
+  count($("s-date"), nc || 0);
+  if (nd && nd[0]) { const d = nd[0];
+    $("dt-b").textContent = d.kind + " date confirmed";
+    $("dt-p").textContent = new Date(d.date_on + "T00:00").toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" }) + " \u00b7 " + new Date("1970-01-01T" + d.time_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + " \u00b7 " + d.place;
+    $("dt-a").textContent = "View Ticket \u2192"; $("dt-a").href = "date.html#ticket/" + d.id; }
   if (likes) { $("bell").querySelector("span").className = "badge"; const b = $("bell").querySelector("span"); b.textContent = likes > 99 ? "99+" : likes; b.style.display = "grid"; }
 
   const seen = new Set((mine.data || []).map(r => r.to_user));
