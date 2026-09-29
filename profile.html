@@ -9,7 +9,6 @@
 <body><canvas id="fx"></canvas>
 <main class="wrap wide page">
 <div class="topbar"><div id="top"></div><button id="out" class="ghost" type="button">Log out</button></div>
-<nav class="steps" aria-label="Progress"><div class="step on"><i>1</i>Profile Info</div><div class="step"><i>2</i>Photos</div><div class="step"><i>3</i>Interests</div><div class="step"><i>4</i>Finish</div></nav>
 <h2 class="ptitle">Complete <span>your profile</span></h2>
 <p class="lead" style="text-align:center">Your profile helps you find better matches.</p>
 
@@ -72,16 +71,13 @@
 </section>
 
 <div id="msg" class="msg" role="alert"></div>
-<div class="bar glass">
-  <div class="prog">Step 1 of 4<div class="track"><b></b></div></div>
-  <button id="go" class="btn" type="submit">Save &amp; Continue &rarr;</button>
-</div>
+<div class="bar"><button id="go" class="btn" type="submit" style="width:100%">Save &amp; Continue &rarr;</button></div>
 </form>
 </main>
 <script src="config.js"></script><script src="crushly.js"></script>
 <script>
-// Where "Save & Continue" goes next. Leave empty until Step 2 (photos page) exists.
-const NEXT_PAGE = "";
+// Page users go to after "Save & Continue"
+const NEXT_PAGE = "dashboard.html";
 
 const $ = id => document.getElementById(id);
 const vals = { gender: "", looking: "" };

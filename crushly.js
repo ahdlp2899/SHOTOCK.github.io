@@ -1,6 +1,6 @@
 /* ===== CRUSHLY shared script ===== */
-// Page users land on after login. Change to "discover.html" when that page exists.
-const HOME_PAGE = "profile.html";
+// Page users land on after login (returning users with a saved profile)
+const HOME_PAGE = "dashboard.html";
 
 (function () {
   const $ = s => document.querySelector(s);

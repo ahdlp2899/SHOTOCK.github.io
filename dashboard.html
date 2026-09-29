@@ -1,0 +1,68 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crushly · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="crushly.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+.wrap.dash{max-width:980px}
+.dash .hero{display:none}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ghost{background:rgba(20,10,45,.6);border:1px solid rgba(138,46,255,.5);color:var(--muted);border-radius:999px;padding:9px 16px;font:500 14px "Poppins",system-ui,sans-serif;cursor:pointer;text-decoration:none}
+.ghost:hover{border-color:var(--hot);color:#fff}
+.me{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:20px}
+.pic{width:104px;height:104px;border-radius:50%;border:3px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.6);object-fit:cover;background:rgba(20,10,45,.6);flex:0 0 auto}
+.me h2{margin:0;font-size:26px;font-weight:700}
+.me h2 span{background:linear-gradient(90deg,var(--hot),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bio{margin:8px 0 0;color:var(--muted);max-width:52ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{padding:6px 12px;border-radius:999px;border:1px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:18px}
+.tile{padding:20px}
+.tile b{display:block;font-size:18px}
+.tile p{margin:6px 0 0;font-size:14px;color:var(--muted)}
+.soon{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:999px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:rgba(138,46,255,.3);color:#dcc6ff}
+</style></head>
+<body><canvas id="fx"></canvas>
+<main class="wrap dash page">
+<div class="topbar"><div id="top"></div>
+  <div class="flex gap-2"><a class="ghost nav" href="profile.html">Edit profile</a><button id="out" class="ghost" type="button">Log out</button></div></div>
+
+<section class="glass me" style="margin-top:20px">
+  <img id="pic" class="pic" alt="Your profile photo">
+  <div>
+    <p class="eyebrow">Welcome</p>
+    <h2 id="name"><span></span></h2>
+    <p id="bio" class="bio"></p>
+    <div id="facts" class="facts"></div>
+  </div>
+</section>
+
+<section class="tiles">
+  <div class="glass tile"><b>&hearts; Discover</b><p>Meet new people near you.</p><span class="soon">Coming soon</span></div>
+  <div class="glass tile"><b>&hearts; Matches</b><p>People who like you back.</p><span class="soon">Coming soon</span></div>
+  <div class="glass tile"><b>&hearts; Messages</b><p>Chat, share photos and call.</p><span class="soon">Coming soon</span></div>
+  <div class="glass tile"><b>&hearts; Settings</b><p>Account, privacy and safety.</p><span class="soon">Coming soon</span></div>
+</section>
+<p class="foot">&hearts; More than just dating &hearts;</p>
+</main>
+<script src="config.js"></script><script src="crushly.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { location.href = "index.html"; return; }
+  const { data: p } = await db.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
+  if (!p) { location.href = "profile.html"; return; }
+  const b = new Date(p.birthdate), n = new Date(); let age = n.getFullYear() - b.getFullYear();
+  if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) age--;
+  $("name").firstChild.textContent = (p.display_name || "") + ", " + age;
+  $("bio").textContent = p.bio || "";
+  $("pic").src = p.avatar_url || "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
+  [p.city && [p.city, p.state, p.country].filter(Boolean).join(", "), p.height_cm && p.height_cm + " cm", p.weight_kg && p.weight_kg + " kg",
+   p.education, p.gender, p.looking_for && "Looking for " + p.looking_for.toLowerCase()].filter(Boolean).forEach(t => {
+    const c = document.createElement("span"); c.className = "chip"; c.textContent = t; $("facts").appendChild(c); });
+})();
+$("out").addEventListener("click", async () => { await db.auth.signOut(); location.href = "index.html"; });
+</script></body></html>
