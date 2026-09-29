@@ -57,9 +57,6 @@
 .qa>*:hover,.qa>*:active{transform:translateY(-3px);box-shadow:0 0 18px rgba(255,45,141,.5)}
 .qa .i{color:var(--hot)}.qa small{display:block;color:var(--muted);font-size:11px;font-weight:400}
 /* bottom nav */
-.bnav{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(440px,calc(100% - 24px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;border-radius:999px;background:rgba(15,6,30,.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1.5px solid rgba(255,45,141,.5);box-shadow:0 0 26px rgba(255,45,141,.25)}
-.bnav>*{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:999px;border:0;background:none;color:var(--muted);font:500 12px "Poppins",system-ui,sans-serif;text-decoration:none;cursor:pointer;transition:.3s}
-.bnav .on{color:#fff;background:linear-gradient(135deg,rgba(255,45,141,.55),rgba(138,46,255,.55));box-shadow:0 0 18px rgba(255,45,141,.7)}
 .toast{position:fixed;z-index:9;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.92);border:1.5px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.5);transition:transform .4s;max-width:90%;text-align:center}
 .toast.show{transform:translate(-50%,0)}
 </style></head>
@@ -111,15 +108,9 @@
 <p class="foot"><a href="#" id="out" class="link" style="letter-spacing:0;text-transform:none">Log out</a></p>
 </main>
 
-<nav class="bnav" aria-label="Main">
-  <a class="on" href="dashboard.html" aria-current="page"><span class="i" data-i="home"></span>Home</a>
-  <a href="chat.html" class="nav"><span class="i" data-i="chat"></span>Chat</a>
-  <button type="button" data-soon><span class="i" data-i="cal"></span>Date</button>
-  <a href="profile.html" class="nav"><span class="i" data-i="user"></span>Profile</a>
-</nav>
 <div id="toast" class="toast" role="status"></div>
 
-<script src="config.js"></script><script src="crushly.js"></script>
+<script src="config.js"></script><script src="crushly.js"></script><script src="nav.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const ICONS = {
