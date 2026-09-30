@@ -78,15 +78,31 @@ body.tv{overflow:hidden}
 #viewer img{max-width:100%;max-height:100%}
 .toast{position:fixed;z-index:40;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.94);border:1.5px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.5);transition:transform .4s;max-width:90%;text-align:center}
 .toast.show{transform:translate(-50%,0)}
+.blk{position:fixed;inset:0;z-index:45;display:flex;flex-direction:column;padding:16px;background:radial-gradient(60% 40% at 50% 30%,rgba(138,46,255,.35),var(--bg) 70%)}
+.bc{margin:auto;text-align:center;max-width:340px}.bi{width:120px;height:120px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;font-size:52px;border:2px solid var(--hot);box-shadow:0 0 40px rgba(255,45,141,.5);background:rgba(138,46,255,.25)}
+.bc h2{margin:0 0 8px}.bc p{margin:0;color:var(--muted)}.pkb{display:block;width:100%;margin-top:22px;padding:14px;border:0;border-radius:16px;color:#fff;font:500 15px "Poppins",system-ui,sans-serif;background:linear-gradient(135deg,var(--pink),var(--purple))}
+.cbk{width:42px;height:42px;padding:0;flex:0 0 auto;border-radius:50%;border:1.5px solid rgba(255,45,141,.5);background:rgba(20,10,45,.6);color:#fff;font-size:18px}
+.mid small.red{color:#ff8aa8}
+.tk{color:rgba(255,255,255,.75)}.tk.rd{color:#5ef2ff;text-shadow:0 0 6px rgba(94,242,255,.6)}
+.pfimg{display:block;width:100%;max-height:52vh;object-fit:cover;border-radius:20px;margin-bottom:12px;background:#140a2d}
+.pfr{padding:12px 2px;border-top:1px solid rgba(138,46,255,.25);text-align:left}.pfr small{display:block;color:var(--muted);font-size:12px}.pfr b{font-weight:500;white-space:pre-wrap;word-break:break-word}
+#oav,#oname,.av2{cursor:pointer}
 </style></head>
 <body><canvas id="fx"></canvas>
 
 <main id="list" class="wrap chat page" hidden>
   <div class="tb"><div id="top" data-hero="0" class="grow"></div><a href="me.html" class="nav"><img id="myav" class="av" alt="You"></a></div>
   <div class="glow"></div>
+  <div class="tb2" id="vtabs"><button class="on" data-v="chats">Chats</button><button data-v="calls">Calls</button></div>
+  <div id="vchats">
   <input id="q" class="search" type="search" placeholder="Search chats, names, or messages…" aria-label="Search chats">
   <div class="tb2" id="tabs"><button class="on" data-t="all">All Chats</button><button data-t="unread">Unread</button><button data-t="online">Online</button></div>
   <div id="convs"><div class="ld"></div></div>
+  </div>
+  <div id="vcalls" hidden>
+    <div class="tb2" id="cf"><button class="on" data-f="all">All</button><button data-f="audio">Audio</button><button data-f="video">Video</button><button data-f="missed">Missed</button></div>
+    <div id="clist"></div>
+  </div>
 </main>
 
 <section id="thread" hidden>
@@ -94,8 +110,8 @@ body.tv{overflow:hidden}
     <button class="ib" id="back" type="button" aria-label="Back">&larr;</button>
     <img id="oav" class="av" alt="">
     <div class="who"><b id="oname"></b><small id="st">Offline</small></div>
-    <button class="ib" type="button" data-soon aria-label="Video call">&#127909;</button>
-    <button class="ib" type="button" data-soon aria-label="Voice call">&#128222;</button>
+    <button class="ib" id="c-vid" type="button" aria-label="Video call">&#127909;</button>
+    <button class="ib" id="c-aud" type="button" aria-label="Voice call">&#128222;</button>
     <button class="ib" id="more" type="button" aria-label="More options">&#8942;</button>
   </header>
   <div id="msgs" class="msgs" aria-live="polite"></div>
@@ -122,6 +138,12 @@ body.tv{overflow:hidden}
   <button class="mb" id="m-copy" type="button">Copy</button><button class="mb" id="m-del" type="button">Delete</button><button class="mb" id="m-x" type="button">Cancel</button>
 </div></div>
 <div id="om" class="sbg" hidden><div class="sheet glass"><button class="mb" id="om-rep" type="button">Report user</button><button class="mb" id="om-blk" type="button">Block user</button><button class="mb" id="om-x" type="button">Cancel</button></div></div>
+<div id="pfs" class="sbg" hidden><div class="sheet glass" style="max-height:90vh;overflow:auto">
+  <img id="pf-i" class="pfimg" alt=""><h3 id="pf-n" style="margin:0 0 6px;font-size:22px"></h3>
+  <div class="pfr"><small>Height</small><b id="pf-h"></b></div><div class="pfr"><small>Address</small><b id="pf-a"></b></div><div class="pfr"><small>About</small><b id="pf-b"></b></div>
+  <button class="mb" id="pf-x" type="button">Close</button></div></div>
+<div id="blk" class="blk" hidden><button class="ib" id="blk-b" type="button" aria-label="Back">&larr;</button>
+  <div class="bc"><div class="bi">&#128245;</div><h2 id="blk-t"></h2><p id="blk-p"></p><button class="pkb" id="blk-ok" type="button">Back to chat</button></div></div>
 <div id="viewer" hidden><img id="vimg" alt="Photo"></div>
 <div id="toast" class="toast" role="status"></div>
 <input type="file" id="f-cam" accept="image/*" capture="environment" hidden>
@@ -148,7 +170,7 @@ function watchOnline(cb) {
   ch.on("presence", { event: "sync" }, () => { online = new Set(Object.keys(ch.presenceState())); cb(); })
     .subscribe(async s => { if (s === "SUBSCRIBED") await ch.track({ at: Date.now() }); });
 }
-const preview = m => !m ? "Say hi \u2665" : (m.sender === uid ? "You: " : "") + ({ image: "\uD83D\uDCF7 Photo", video: "\uD83C\uDFA5 Video", audio: "\uD83C\uDFA4 Voice message", file: "\uD83D\uDCC4 Document", location: "\uD83D\uDCCD Location" }[m.kind] || m.body || "");
+const preview = m => !m ? "Say hi \u2665" : (m.sender === uid ? (m.read_at || m.delivered_at ? "\u2713\u2713 " : "\u2713 ") + "You: " : "") + ({ image: "\uD83D\uDCF7 Photo", video: "\uD83C\uDFA5 Video", audio: "\uD83C\uDFA4 Voice message", file: "\uD83D\uDCC4 Document", location: "\uD83D\uDCCD Location" }[m.kind] || m.body || "");
 
 /* ---------- chat list ---------- */
 let convs = [], tab = "all";
@@ -156,8 +178,8 @@ async function load() {
   const { data: ms } = await db.from("matches").select("id,user_a,user_b");
   if (!ms || !ms.length) { convs = []; render(); return; }
   const oth = ms.map(m => m.user_a === uid ? m.user_b : m.user_a), ids = ms.map(m => m.id);
-  const [pr, mg] = await Promise.all([db.from("profiles").select("id,display_name,avatar_url").in("id", oth),
-    db.from("messages").select("match_id,sender,body,kind,created_at,read_at").in("match_id", ids).order("created_at", { ascending: false }).limit(400)]);
+  const [pr, mg] = await Promise.all([db.from("profiles").select("id,display_name,avatar_url,birthdate,height_cm,city,state,country,bio").in("id", oth),
+    db.from("messages").select("*").in("match_id", ids).order("created_at", { ascending: false }).limit(400)]);
   const P = Object.fromEntries((pr.data || []).map(p => [p.id, p]));
   convs = ms.map(m => { const o = m.user_a === uid ? m.user_b : m.user_a, l = (mg.data || []).filter(x => x.match_id === m.id);
     return { mid: m.id, p: P[o] || { id: o, display_name: "Someone" }, last: l[0], unread: l.filter(x => x.sender !== uid && !x.read_at).length }; })
@@ -171,15 +193,64 @@ function render() {
   if (!rows.length) { box.append(el("div", "glass empty", convs.length ? "No chats match." : "No chats yet. Like someone from Today\u2019s Picks \u2014 when it\u2019s mutual, your chat appears here \u2665")); return; }
   rows.forEach(c => {
     const a = el("a", "cv"); a.href = "chat.html?m=" + c.mid;
-    const w = el("div", "avw"), im = el("img", "av2"); im.src = c.p.avatar_url || PH; im.alt = ""; w.append(im); if (online.has(c.p.id)) w.append(el("i", "dot"));
+    const w = el("div", "avw"), im = el("img", "av2"); im.src = c.p.avatar_url || PH; im.alt = ""; im.onclick = e => { e.preventDefault(); e.stopPropagation(); showProfile(c.p); }; w.append(im); if (online.has(c.p.id)) w.append(el("i", "dot"));
     const mid = el("div", "mid"); mid.append(el("b", null, c.p.display_name), el("small", null, preview(c.last)));
     const rt = el("div", "rt"); rt.append(el("time", null, c.last ? (same(c.last.created_at, Date.now()) ? tm(c.last.created_at) : dl(c.last.created_at)) : "")); if (c.unread) rt.append(el("div", "ub", c.unread));
     a.append(w, mid, rt); box.append(a);
   });
 }
+const markRead = () => db.rpc("mark_read", { mid: MID }).then(() => {}, () => {});
+function showProfile(p) {
+  if (!p) return;
+  const age = p.birthdate ? (() => { const b = new Date(p.birthdate), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) a--; return a; })() : "";
+  $("pf-i").src = p.avatar_url || PH; $("pf-n").textContent = (p.display_name || "") + (age ? ", " + age : "");
+  $("pf-h").textContent = p.height_cm ? p.height_cm + " cm" : "\u2014";
+  $("pf-a").textContent = [p.city, p.state, p.country].filter(Boolean).join(", ") || "\u2014";
+  $("pf-b").textContent = p.bio || "\u2014"; $("pfs").hidden = false;
+}
+$("pfs").addEventListener("click", e => { if (e.target === $("pfs") || e.target.closest("#pf-x")) $("pfs").hidden = true; });
+addEventListener("pageshow", e => { if (e.persisted && !MID) load(); });
+async function startCallFor(mid, kind) {
+  const { data, error } = await db.rpc("start_call", { mid, k: kind });
+  if (error) { if (/^blocked:/.test(error.message)) return showBlocked(kind); return toast(/function|schema|relation/i.test(error.message) ? "Run the calls SQL in Supabase first" : error.message); }
+  location.href = "call.html?c=" + data;
+}
+function showBlocked(kind) {
+  const k = kind === "video" ? "Video" : "Audio";
+  $("blk-t").textContent = k + " calls unavailable"; $("blk-p").textContent = "This user has disabled incoming " + k.toLowerCase() + " calls in their privacy settings."; $("blk").hidden = false;
+}
+$("blk-b").onclick = $("blk-ok").onclick = () => $("blk").hidden = true;
+let CH = [], cf = "all";
+async function loadCalls() {
+  $("clist").innerHTML = '<div class="ld"></div>';
+  const { data, error } = await db.from("calls").select("*").order("created_at", { ascending: false }).limit(100);
+  if (error) { $("clist").textContent = ""; $("clist").append(el("div", "glass empty", /relation|schema|calls/i.test(error.message) ? "Run the calls SQL in Supabase to turn on calls and call history." : error.message)); return; }
+  const ids = [...new Set(data.map(x => x.caller === uid ? x.callee : x.caller))];
+  const P = ids.length ? Object.fromEntries(((await db.from("profiles").select("id,display_name,avatar_url").in("id", ids)).data || []).map(p => [p.id, p])) : {};
+  CH = data.map(x => ({ ...x, out: x.caller === uid, p: P[x.caller === uid ? x.callee : x.caller] || { display_name: "Someone" } })); renderCalls();
+}
+function renderCalls() {
+  const box = $("clist"); box.textContent = "";
+  const rows = CH.filter(x => cf === "all" || (cf === "missed" ? x.status === "missed" && !x.out : x.kind === cf));
+  if (!rows.length) { box.append(el("div", "glass empty", "No calls yet.")); return; }
+  rows.forEach(x => {
+    const a = el("div", "cv"), im = el("img", "av2"); im.src = x.p.avatar_url || PH; im.alt = "";
+    const miss = x.status === "missed" && !x.out, d = x.answered_at && x.ended_at ? " \u2022 " + dur(Math.round((new Date(x.ended_at) - new Date(x.answered_at)) / 1000)) : "";
+    const txt = x.status === "missed" ? (x.out ? "No answer" : "Missed Call") : x.status === "declined" ? "Declined" : x.status === "cancelled" ? "Cancelled" : x.status === "ringing" ? "Ringing\u2026" : (x.kind === "video" ? "Video" : "Audio") + " Call" + d;
+    const mid = el("div", "mid"); mid.append(el("b", null, x.p.display_name), el("small", miss ? "red" : null, (x.out ? "\u2197 " : "\u2199 ") + txt));
+    const rt = el("div", "rt"); rt.append(el("time", null, same(x.created_at, Date.now()) ? tm(x.created_at) : dl(x.created_at)));
+    const cb = el("button", "cbk", x.kind === "video" ? "\uD83C\uDFA5" : "\uD83D\uDCDE"); cb.type = "button"; cb.setAttribute("aria-label", "Call back");
+    cb.onclick = e => { e.stopPropagation(); startCallFor(x.match_id, x.kind); }; a.onclick = () => location.href = "chat.html?m=" + x.match_id;
+    a.append(im, mid, rt, cb); box.append(a);
+  });
+}
 async function openList(me) {
   $("list").hidden = false; $("myav").src = me.avatar_url || PH;
   $("q").addEventListener("input", render);
+  $("vtabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; const v = b.dataset.v;
+    document.querySelectorAll("#vtabs button").forEach(x => x.classList.toggle("on", x === b)); $("vchats").hidden = v !== "chats"; $("vcalls").hidden = v !== "calls"; if (v === "calls") loadCalls(); });
+  $("cf").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; cf = b.dataset.f;
+    document.querySelectorAll("#cf button").forEach(x => x.classList.toggle("on", x === b)); renderCalls(); });
   $("tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; tab = b.dataset.t;
     document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b)); render(); });
   await load(); watchOnline(render);
@@ -188,7 +259,7 @@ async function openList(me) {
 
 /* ---------- thread ---------- */
 const shown = new Map(); let other, lastDay = "", sel = null;
-function tick(n, m) { const t = n.querySelector(".tk"); if (t) { t.textContent = m.read_at ? "\u2713\u2713" : "\u2713"; t.classList.toggle("rd", !!m.read_at); } }
+function tick(n, m) { const t = n.querySelector(".tk"); if (t) { t.textContent = m.read_at || m.delivered_at ? "\u2713\u2713" : "\u2713"; t.classList.toggle("rd", !!m.read_at); } }
 function voice(m) {
   const w = el("div", "va"), btn = el("button", "pl", "\u25B6"), bars = el("div", "bars"), d = el("span", "dur", dur(m.duration || 0)); btn.type = "button";
   for (let i = 0; i < 28; i++) { const s = el("i"); s.style.height = (6 + ((m.id.charCodeAt(i % 8) * (i + 3)) % 20)) + "px"; bars.append(s); }
@@ -256,6 +327,8 @@ function wireUI() {
     navigator.geolocation.getCurrentPosition(p => send({ kind: "location", body: p.coords.latitude.toFixed(5) + "," + p.coords.longitude.toFixed(5) }), () => toast("Allow location access"), { timeout: 10000 }); };
   // long-press menu
   $("m-x").onclick = () => close("menu");
+  $("oav").onclick = $("oname").onclick = () => showProfile(other);
+  $("c-vid").onclick = () => startCallFor(MID, "video"); $("c-aud").onclick = () => startCallFor(MID, "audio");
   $("more").onclick = () => $("om").hidden = false; $("om-x").onclick = () => close("om");
   $("om-rep").onclick = () => { close("om"); if (other) crushlyReport(other.id, other.display_name); };
   $("om-blk").onclick = () => { close("om"); if (other) crushlyBlock(other.id, other.display_name, () => location.href = "chat.html"); };
@@ -288,12 +361,12 @@ async function openThread() {
   document.body.classList.add("tv"); $("thread").hidden = false; wireUI();
   const { data: m } = await db.from("matches").select("*").eq("id", MID).maybeSingle();
   if (!m) { location.href = "chat.html"; return; }
-  const { data: p } = await db.from("profiles").select("id,display_name,avatar_url").eq("id", m.user_a === uid ? m.user_b : m.user_a).maybeSingle();
+  const { data: p } = await db.from("profiles").select("id,display_name,avatar_url,birthdate,height_cm,city,state,country,bio").eq("id", m.user_a === uid ? m.user_b : m.user_a).maybeSingle();
   other = p || { id: "", display_name: "Someone" }; $("oname").textContent = other.display_name; $("oav").src = other.avatar_url || PH;
   const { data: rows } = await db.from("messages").select("*").eq("match_id", MID).order("created_at").limit(300);
-  (rows || []).forEach(addMsg); db.rpc("mark_read", { mid: MID });
+  (rows || []).forEach(addMsg); markRead();
   db.channel("msgs:" + MID).on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: "match_id=eq." + MID }, pl => {
-    if (pl.eventType === "INSERT") { if (!shown.has(pl.new.id)) { addMsg(pl.new); if (pl.new.sender !== uid) db.rpc("mark_read", { mid: MID }); } }
+    if (pl.eventType === "INSERT") { if (!shown.has(pl.new.id)) { addMsg(pl.new); if (pl.new.sender !== uid) markRead(); } }
     else if (pl.eventType === "UPDATE") { const n = shown.get(pl.new.id); if (n) tick(n, pl.new); }
     else if (pl.eventType === "DELETE") { const n = shown.get(pl.old.id); if (n) { n.remove(); shown.delete(pl.old.id); } }
   }).subscribe();
