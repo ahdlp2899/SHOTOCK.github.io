@@ -1,0 +1,180 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crushly · Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="crushly.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+[hidden]{display:none!important}
+.wrap.me{max-width:480px;padding-bottom:120px}
+.sec{animation:in .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*90ms)}
+.tb{display:flex;align-items:center;gap:10px}.tb .grow{flex:1}
+.ib{width:44px;height:44px;padding:0;border-radius:50%;border:1.5px solid rgba(255,45,141,.55);background:rgba(20,10,45,.6);display:grid;place-items:center;color:var(--hot)}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.i svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.i{color:var(--hot);display:grid;place-items:center;flex:0 0 auto}
+.hero2{text-align:center;margin-top:8px}
+.pw{position:relative;width:150px;height:172px;margin:0 auto}
+.ring2{position:relative;width:150px;height:150px;border-radius:50%;padding:4px;background:linear-gradient(135deg,var(--pink),var(--purple));box-shadow:0 0 30px rgba(255,45,141,.6)}
+.ring2.up::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:4px solid transparent;border-top-color:#fff;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pic{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#140a2d;display:block;border:3px solid var(--bg)}
+.upb{position:absolute;left:50%;bottom:0;transform:translateX(-50%);white-space:nowrap;padding:9px 16px;border-radius:999px;border:1.5px solid var(--hot);background:rgba(15,6,30,.94);color:#fff;font:500 13px "Poppins",system-ui,sans-serif;box-shadow:0 0 16px rgba(255,45,141,.5)}
+.hero2 h1{margin:8px 0 2px;font-size:26px;font-weight:700}.sub{margin:0;color:var(--muted)}
+.onl{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:4px 12px;border-radius:999px;border:1px solid #2ee68a;background:rgba(46,230,138,.12);color:#8dffc4;font-size:13px}
+.onl i{width:8px;height:8px;border-radius:50%;background:#2ee68a;box-shadow:0 0 8px #2ee68a}
+.card{padding:16px;margin-top:16px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.ch h2{margin:0;font-size:18px;font-weight:600}
+.edit{padding:7px 18px;border-radius:999px;border:1.5px solid var(--hot);background:rgba(255,45,141,.12);color:#fff;text-decoration:none;font:500 13px "Poppins",system-ui,sans-serif}
+.pr{display:flex;align-items:center;gap:14px;padding:13px 2px;border-top:1px solid rgba(138,46,255,.2)}
+.pr>div{flex:1;min-width:0}.pr small{display:block;color:var(--muted);font-size:12px}.pr b{font-weight:500;word-break:break-word;white-space:pre-wrap}
+.sw{position:relative;width:52px;height:30px;flex:0 0 auto;padding:0;border:0;border-radius:999px;background:rgba(138,46,255,.35);transition:.3s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.3s}
+.sw[aria-checked="true"]{background:linear-gradient(90deg,var(--pink),var(--purple));box-shadow:0 0 14px rgba(255,45,141,.7)}
+.sw[aria-checked="true"]::after{transform:translateX(22px)}
+.rad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.rad button{padding:11px 4px;border-radius:999px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:var(--text);font:500 13px "Poppins",system-ui,sans-serif;transition:.25s}
+.rad .on{border-color:var(--hot);background:linear-gradient(135deg,rgba(255,45,141,.4),rgba(138,46,255,.4));box-shadow:0 0 14px rgba(255,45,141,.6)}
+.hint{margin:10px 2px 0;font-size:12px;color:var(--muted)}
+.li{display:flex;align-items:center;gap:14px;width:100%;padding:14px 2px;border:0;border-top:1px solid rgba(138,46,255,.2);background:none;color:#fff;text-align:left;text-decoration:none;font:500 15px "Poppins",system-ui,sans-serif}
+.li span:nth-child(2){flex:1}.li em{font-style:normal;font-size:22px;color:var(--hot)}.li.out{color:#ff9db0}
+.sbg{position:fixed;inset:0;z-index:20;background:rgba(7,4,15,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:min(480px,100%);max-height:88vh;overflow:auto;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;animation:up .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{transform:translateY(100%)}}
+.sheet h3{margin:0 0 6px;font-size:20px}.mb{display:block;width:100%;margin-top:10px;padding:14px;border-radius:16px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;text-align:center;text-decoration:none;font:500 15px "Poppins",system-ui,sans-serif}
+.mb.pk{background:linear-gradient(135deg,var(--pink),var(--purple));border:0;box-shadow:0 0 16px rgba(255,45,141,.6)}
+details{border-top:1px solid rgba(138,46,255,.2);padding:12px 2px}summary{cursor:pointer;font-weight:500}details p{margin:8px 0 0;color:var(--muted);font-size:14px}
+.toast{position:fixed;z-index:80;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.94);border:1.5px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.5);transition:transform .4s;max-width:90%;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+</style></head>
+<body><canvas id="fx"></canvas>
+<main class="wrap me page">
+  <div class="tb sec"><div id="top" data-hero="0" class="grow"></div><button id="gear" class="ib i" type="button" aria-label="Settings" data-i="sliders"></button></div>
+
+  <section class="hero2 sec" style="--i:1">
+    <div class="pw"><div class="ring2" id="ring"><img id="pic" class="pic" alt="Your photo"></div><button id="up" class="upb" type="button">+ Upload Photo</button></div>
+    <input type="file" id="file" accept="image/jpeg,image/png" hidden>
+    <h1 id="nm">&nbsp;</h1><p id="sub" class="sub"></p><span class="onl"><i></i>Online</span>
+  </section>
+
+  <section class="glass card sec" style="--i:2">
+    <div class="ch"><h2>Personal Information</h2><a class="edit nav" href="profile.html?from=me">Edit</a></div>
+    <div class="pr"><span class="i" data-i="user"></span><div><small>Full Name</small><b id="v-name"></b></div></div>
+    <div class="pr"><span class="i" data-i="gender"></span><div><small>Gender</small><b id="v-gender"></b></div></div>
+    <div class="pr"><span class="i" data-i="height"></span><div><small>Height (cm)</small><b id="v-height"></b></div></div>
+    <div class="pr"><span class="i" data-i="weight"></span><div><small>Weight (kg)</small><b id="v-weight"></b></div></div>
+    <div class="pr"><span class="i" data-i="heart"></span><div><small>Looking For</small><b id="v-look"></b></div></div>
+    <div class="pr"><span class="i" data-i="edu"></span><div><small>Education</small><b id="v-edu"></b></div></div>
+    <div class="pr"><span class="i" data-i="pin"></span><div><small>Address</small><b id="v-addr"></b></div></div>
+    <div class="pr"><span class="i" data-i="note"></span><div><small>About Me</small><b id="v-bio"></b></div></div>
+  </section>
+
+  <section class="glass card sec" id="privacy" style="--i:3">
+    <div class="ch"><h2>Privacy</h2></div>
+    <div class="pr"><span class="i" data-i="mic"></span><div><b>Incoming Audio Calls</b><small>Allow others to call you by audio.</small></div><button class="sw" role="switch" aria-checked="true" aria-label="Incoming audio calls" data-k="allow_audio"></button></div>
+    <div class="pr"><span class="i" data-i="video"></span><div><b>Incoming Video Calls</b><small>Allow others to call you by video.</small></div><button class="sw" role="switch" aria-checked="true" aria-label="Incoming video calls" data-k="allow_video"></button></div>
+    <div class="pr" style="display:block"><b>Who Can Call Me?</b><small>Choose who is allowed to call you.</small>
+      <div class="rad" id="rad" role="radiogroup"><button type="button" role="radio" data-v="everyone">Everyone</button><button type="button" role="radio" data-v="matches">Matches only</button><button type="button" role="radio" data-v="nobody">Nobody</button></div></div>
+    <p class="hint">These choices are saved now and apply as soon as calls are available.</p>
+  </section>
+
+  <section class="glass card sec" id="settings" style="--i:4">
+    <div class="ch"><h2>Settings</h2></div>
+    <button class="li" id="b-notif" type="button"><span class="i" data-i="bell"></span><span>Notifications</span><em>&rsaquo;</em></button>
+    <button class="li" id="b-help" type="button"><span class="i" data-i="help"></span><span>Help &amp; Support</span><em>&rsaquo;</em></button>
+    <a class="li nav" id="b-admin" href="admin.html" hidden><span class="i" data-i="shield"></span><span>Admin panel</span><em>&rsaquo;</em></a>
+    <button class="li out" id="b-out" type="button"><span class="i" data-i="logout"></span><span>Log Out</span><em>&rsaquo;</em></button>
+  </section>
+</main>
+
+<div id="sh-n" class="sbg" hidden><div class="sheet glass"><h3>Notifications</h3>
+  <div class="pr"><div><b>Date request alerts</b><small>Pop-up banners for date requests and replies.</small></div><button class="sw" role="switch" aria-checked="true" aria-label="Date request alerts" data-l="crushly_alert_dates"></button></div>
+  <div class="pr"><div><b>Do not disturb</b><small>Silence all pop-up banners for a while.</small></div><button class="sw" role="switch" aria-checked="false" aria-label="Do not disturb" data-l="crushly_dnd"></button></div>
+  <button class="mb" data-close type="button">Done</button></div></div>
+<div id="sh-h" class="sbg" hidden><div class="sheet glass"><h3>Help &amp; Support</h3>
+  <details><summary>How do I get a match?</summary><p>Like someone from Today&rsquo;s Picks on Home. When they like you back, you match and a chat opens under Chat.</p></details>
+  <details><summary>How do I plan a date?</summary><p>Open the Date tab, choose a match, pick a day, time and place, and send the request. Your match can accept or reject it.</p></details>
+  <details><summary>How do I report or block someone?</summary><p>Tap their card on Home and choose Report or Block, or use the &#8942; menu inside a chat.</p></details>
+  <details><summary>How do I change my photo or details?</summary><p>Tap Upload Photo on this page, or Edit next to Personal Information.</p></details>
+  <a class="mb pk" id="mail" href="#" hidden>Email support</a><p class="hint" id="nomail">Need more help? Contact the Crushly team.</p>
+  <button class="mb" data-close type="button">Close</button></div></div>
+<div id="sh-l" class="sbg" hidden><div class="sheet glass" style="text-align:center"><h3>Log out?</h3><p class="lead">You&rsquo;ll need to sign in again to access your account.</p>
+  <button class="mb pk" id="l-yes" type="button">Log Out</button><button class="mb" data-close type="button">Cancel</button></div></div>
+<div id="toast" class="toast" role="status"></div>
+
+<script src="config.js"></script><script src="crushly.js"></script><script src="nav.js"></script>
+<script>
+const SUPPORT_EMAIL = ""; // put your support email here, e.g. "help@yourapp.com" — shows an "Email support" button
+const $ = id => document.getElementById(id);
+const IC = {
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 5-7 8-7s7 2 8 7"/>', gender: '<circle cx="10" cy="14" r="5"/><path d="M14 10l6-6M15 4h5v5"/>',
+  height: '<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/>', weight: '<rect x="4" y="6" width="16" height="14" rx="3"/><path d="M9 6a3 3 0 0 1 6 0M12 14l2-3"/>',
+  heart: '<path d="M12 21C5 15.5 3 12 3 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 9 2.5C21 12 19 15.5 12 21Z"/>', edu: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
+  pin: '<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>', note: '<path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4"/>',
+  mic: '<path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4"/>', video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>',
+  bell: '<path d="M6 17v-6a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/>', help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
+  logout: '<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>', sliders: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>' };
+document.querySelectorAll("[data-i]").forEach(e => e.insertAdjacentHTML("afterbegin", `<svg viewBox="0 0 24 24" aria-hidden="true">${IC[e.dataset.i]}</svg>`));
+const PH = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
+let tt; const toast = t => { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("show"), 2400); };
+const ageOf = d => { const b = new Date(d), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) a--; return a; };
+const open = id => $(id).hidden = false, shut = id => $(id).hidden = true;
+let uid, p;
+
+function fill() {
+  $("nm").textContent = p.display_name || "";
+  $("sub").textContent = [ageOf(p.birthdate), p.gender, p.city].filter(Boolean).join(" \u2022 ");
+  $("pic").src = p.avatar_url || PH;
+  const v = (id, x) => $(id).textContent = x || "\u2014";
+  v("v-name", p.display_name); v("v-gender", p.gender); v("v-height", p.height_cm && p.height_cm + " cm"); v("v-weight", p.weight_kg && p.weight_kg + " kg");
+  v("v-look", p.looking_for); v("v-edu", p.education); v("v-addr", [p.city, p.state, p.country].filter(Boolean).join(", ")); v("v-bio", p.bio);
+  document.querySelectorAll("#privacy .sw").forEach(s => s.setAttribute("aria-checked", p[s.dataset.k] !== false));
+  const cp = p.call_privacy || "everyone"; document.querySelectorAll("#rad button").forEach(b => { const on = b.dataset.v === cp; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
+  $("b-admin").hidden = !p.is_admin;
+}
+async function savePriv(patch) {
+  const { error } = await db.from("profiles").update(patch).eq("id", uid);
+  if (error) { toast(/column|schema/i.test(error.message) ? "Run the profile SQL in Supabase first" : error.message); return false; }
+  Object.assign(p, patch); toast("Saved \u2665"); return true;
+}
+document.querySelectorAll("#privacy .sw").forEach(s => s.addEventListener("click", async () => {
+  const on = s.getAttribute("aria-checked") !== "true"; s.setAttribute("aria-checked", on);
+  if (!await savePriv({ [s.dataset.k]: on })) s.setAttribute("aria-checked", !on); }));
+$("rad").addEventListener("click", async e => { const b = e.target.closest("button"); if (!b) return; const old = p.call_privacy || "everyone";
+  document.querySelectorAll("#rad button").forEach(x => x.classList.toggle("on", x === b));
+  if (!await savePriv({ call_privacy: b.dataset.v })) document.querySelectorAll("#rad button").forEach(x => x.classList.toggle("on", x.dataset.v === old)); });
+
+// photo upload
+$("up").addEventListener("click", () => $("file").click()); $("pic").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  if (!["image/jpeg", "image/png"].includes(f.type)) return toast("Use a JPG or PNG photo");
+  if (f.size > 5 * 1024 * 1024) return toast("Photo must be under 5MB");
+  const old = $("pic").src; $("pic").src = URL.createObjectURL(f); $("ring").classList.add("up");
+  const path = `${uid}/avatar.${f.type === "image/png" ? "png" : "jpg"}`;
+  const { error } = await db.storage.from("avatars").upload(path, f, { upsert: true, contentType: f.type });
+  if (error) { $("ring").classList.remove("up"); $("pic").src = old; return toast("Upload failed: " + error.message); }
+  const url = db.storage.from("avatars").getPublicUrl(path).data.publicUrl + "?v=" + Date.now();
+  await savePriv({ avatar_url: url }); $("ring").classList.remove("up"); $("pic").src = url;
+});
+
+// settings
+$("gear").addEventListener("click", () => $("settings").scrollIntoView({ behavior: "smooth" }));
+$("b-notif").addEventListener("click", () => open("sh-n")); $("b-help").addEventListener("click", () => open("sh-h")); $("b-out").addEventListener("click", () => open("sh-l"));
+document.querySelectorAll(".sbg").forEach(b => b.addEventListener("click", e => { if (e.target === b || e.target.closest("[data-close]")) b.hidden = true; }));
+document.querySelectorAll("#sh-n .sw").forEach(s => { const k = s.dataset.l, def = k === "crushly_alert_dates";
+  const cur = () => localStorage.getItem(k) === null ? def : localStorage.getItem(k) === "1"; s.setAttribute("aria-checked", cur());
+  s.addEventListener("click", () => { const on = !cur(); localStorage.setItem(k, on ? "1" : "0"); s.setAttribute("aria-checked", on); toast("Saved \u2665"); }); });
+if (SUPPORT_EMAIL) { $("mail").href = "mailto:" + SUPPORT_EMAIL; $("mail").hidden = false; $("nomail").hidden = true; }
+$("l-yes").addEventListener("click", async () => { await db.auth.signOut(); location.href = "index.html"; });
+
+(async () => {
+  const { data: { session } } = await db.auth.getSession(); if (!session) { location.href = "index.html"; return; }
+  uid = session.user.id;
+  const { data } = await db.from("profiles").select("*").eq("id", uid).maybeSingle();
+  if (!data) { location.href = "profile.html"; return; }
+  p = data; fill();
+})();
+</script></body></html>

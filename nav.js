@@ -6,8 +6,8 @@
     cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>',
     user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 5-7 8-7s7 2 8 7"/>' };
   // icon, label, page. Edit here to change the menu on every page.
-  const ITEMS = [["home", "Home", "dashboard.html"], ["chat", "Chat", "chat.html"], ["cal", "Date", "date.html"], ["user", "Profile", "profile.html"]];
-  const page = location.pathname.split("/").pop() || "index.html";
+  const ITEMS = [["home", "Home", "dashboard.html"], ["chat", "Chat", "chat.html"], ["cal", "Date", "date.html"], ["user", "Profile", "me.html"]];
+  const raw = location.pathname.split("/").pop() || "index.html", page = raw === "profile.html" ? "me.html" : raw; // edit form keeps the Profile tab lit
   const inChat = new URLSearchParams(location.search).has("m"); // nav hidden inside an open chat
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const st = document.createElement("style");
@@ -74,6 +74,7 @@
     if (pr && pr.is_banned) { await db.auth.signOut(); alert("Your account has been suspended."); location.href = "index.html"; return; }
     // in-app notifications for every date action (shown while the app is open)
     db.channel("dates-notify").on("postgres_changes", { event: "*", schema: "public", table: "dates" }, pl => {
+      if (localStorage.getItem("crushly_dnd") === "1" || localStorage.getItem("crushly_alert_dates") === "0") return;
       const n = pl.new, o = pl.old || {};
       if (pl.eventType === "INSERT" && n.receiver === me) say("\uD83D\uDC8C New date request received");
       else if (pl.eventType === "UPDATE" && n.status !== o.status) {

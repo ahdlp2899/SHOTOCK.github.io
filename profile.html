@@ -77,7 +77,7 @@
 <script src="config.js"></script><script src="crushly.js"></script><script src="nav.js"></script>
 <script>
 // Page users go to after "Save & Continue"
-const NEXT_PAGE = "dashboard.html";
+const NEXT_PAGE = new URLSearchParams(location.search).get("from") === "me" ? "me.html" : "dashboard.html";
 
 const $ = id => document.getElementById(id);
 const vals = { gender: "", looking: "" };
