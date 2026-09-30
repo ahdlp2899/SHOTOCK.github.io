@@ -86,6 +86,7 @@
     if (typeof db === "undefined") return;
     const { data: { session } } = await db.auth.getSession(); if (!session) return;
     const me = session.user.id;
+    if (localStorage.getItem("crushly_keep") === "0" && sessionStorage.getItem("crushly_live") !== "1") { await db.auth.signOut(); location.href = "index.html"; return; }
     // suspended accounts are signed out
     const { data: pr } = await db.from("profiles").select("is_banned").eq("id", me).maybeSingle();
     if (pr && pr.is_banned) { await db.auth.signOut(); alert("Your account has been suspended."); location.href = "index.html"; return; }

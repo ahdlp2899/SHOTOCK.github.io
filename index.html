@@ -1,4 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8">
+<!doctype html><html lang="en"><head>
+<script>if (location.hash.indexOf("type=recovery") > -1) location.replace("reset.html" + location.hash);</script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Crushly · Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -9,15 +10,15 @@
 <main class="wrap page">
 <div id="top"></div>
 <nav class="tabs"><a class="nav on" href="index.html">&hearts; Login</a><a class="nav" href="signup.html">Create Account</a></nav>
-<form id="form" class="glass" novalidate>
+<form id="form" class="glass" novalidate onsubmit="return false">
 <p class="eyebrow">Welcome back</p>
 <h2>Let’s find<br><span>your match</span></h2>
 <p class="lead">Log in to continue your journey</p>
 <div class="sep">&hearts;</div>
 <div class="field"><label class="flex items-center gap-2 text-sm mb-2" for="email"><svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4fb3" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v.4l-10 6.6L2 6.4V6a1 1 0 0 1 1-1Zm-1 3.8V18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V8.8l-10 6.6L2 8.8Z"/></svg> Email</label><div class="inp"><input id="email" type="email" placeholder="you@example.com" autocomplete="email"></div></div>
 <div class="field"><label class="flex items-center gap-2 text-sm mb-2" for="pw"><svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4fb3" aria-hidden="true"><path d="M17 9V7a5 5 0 0 0-10 0v2H5v12h14V9h-2Zm-8 0V7a3 3 0 0 1 6 0v2H9Z"/></svg> Password</label><div class="inp"><input id="pw" type="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="eye" aria-label="Show password"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
-<div class="row"><label><input type="checkbox" id="remember"> Remember me</label><a href="#" id="forgot" class="link">Forgot password?</a></div>
-<button id="go" class="btn" type="submit">Login &rarr;</button>
+<div class="row"><label><input type="checkbox" id="remember" checked> Remember me</label><button type="button" id="forgot" class="link" style="background:none;border:0;padding:0;font:inherit;cursor:pointer">Forgot password?</button></div>
+<button id="go" class="btn" type="button">Login &rarr;</button>
 <div id="msg" class="msg" role="alert"></div>
 <p class="switch">New here? <a class="link nav" href="signup.html">Create an account &rarr;</a></p>
 </form>
@@ -27,24 +28,39 @@
 <script>
 const $=id=>document.getElementById(id);
 const saved=localStorage.getItem('crushly_email');
-if(saved){$('email').value=saved;$('remember').checked=true}
-crushly.goHome();
-$('form').addEventListener('submit',async e=>{
-  e.preventDefault();
+if(saved)$('email').value=saved;
+// "Remember me": ticked = stay signed in; unticked = signed out when the browser session ends
+const keep=localStorage.getItem('crushly_keep'), live=sessionStorage.getItem('crushly_live')==='1';
+if(keep==='0')$('remember').checked=false;
+if(keep!=='0'||live)crushly.goHome(); else db.auth.signOut();
+
+async function login(){
   const email=$('email').value.trim(),password=$('pw').value;
-  if(!email||!password){crushly.msg('Enter your email and password.');return}
+  if(!email||!password){crushly.msg('Enter your email and password, then tap Login.');return}
   $('go').disabled=true;
+  localStorage.setItem('crushly_keep',$('remember').checked?'1':'0');sessionStorage.setItem('crushly_live','1');
   const {error}=await db.auth.signInWithPassword({email,password});
   $('go').disabled=false;
   if(error){crushly.msg(error.message);return}
   $('remember').checked?localStorage.setItem('crushly_email',email):localStorage.removeItem('crushly_email');
   crushly.msg('Welcome back!',true);crushly.goHome();
-});
-$('forgot').addEventListener('click',async e=>{
-  e.preventDefault();
+}
+// only a real tap counts (auto-fill or scripts cannot press the button for you)
+$('go').addEventListener('click',e=>{if(e.isTrusted)login()});
+// the keyboard's Enter/Go key never logs in: Enter in the email box moves to the password box
+$('email').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('pw').focus()}});
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('pw').blur()}});
+
+let lastReset=0;
+$('forgot').addEventListener('click',async()=>{
   const email=$('email').value.trim();
-  if(!email){crushly.msg('Type your email above first.');return}
+  if(!email){crushly.msg('Type your email above, then tap Forgot password.');$('email').focus();return}
+  const wait=60-Math.floor((Date.now()-lastReset)/1000);
+  if(lastReset&&wait>0){crushly.msg('Please wait '+wait+'s before asking again.');return}
+  $('forgot').disabled=true;crushly.msg('Sending reset link\u2026',true);
   const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:new URL('reset.html',location.href).href});
-  crushly.msg(error?error.message:'Reset link sent. Check your email.',!error);
+  $('forgot').disabled=false;
+  if(error){crushly.msg(/rate|seconds|limit/i.test(error.message)?'Too many requests. Please wait a minute and try again.':error.message);return}
+  lastReset=Date.now();crushly.msg('If that email has an account, a reset link is on its way. Check your inbox and spam folder.',true);
 });
 </script></body></html>
