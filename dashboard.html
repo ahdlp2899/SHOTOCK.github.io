@@ -72,6 +72,9 @@
 .mb{width:100%;padding:14px;border-radius:16px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:500 15px "Poppins",system-ui,sans-serif}
 .mb.pk{background:linear-gradient(135deg,var(--pink),var(--purple));border:0;box-shadow:0 0 16px rgba(255,45,141,.6)}
 .two2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 10px}
+.ann{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:14px 16px;border-radius:20px;border:1.5px solid var(--hot);background:linear-gradient(135deg,rgba(255,45,141,.24),rgba(138,46,255,.2));box-shadow:0 0 22px rgba(255,45,141,.3);animation:in .5s both}
+.ann div{flex:1;min-width:0}.ann small{display:block;color:var(--hot);letter-spacing:.14em;text-transform:uppercase;font-size:11px;margin-bottom:2px}.ann span{word-break:break-word}
+.ann button{width:32px;height:32px;padding:0;flex:0 0 auto;border-radius:50%;border:1.5px solid rgba(255,45,141,.5);background:rgba(20,10,45,.6);color:#fff}
 </style></head>
 <body><canvas id="fx"></canvas>
 <main class="wrap dash page">
@@ -196,6 +199,12 @@ async function like(x, card, btn) {
   const { data: p } = await db.from("profiles").select("*").eq("id", uid).maybeSingle();
   if (!p) { location.href = "profile.html"; return; }
   me = p;
+  db.from("announcements").select("id,message").eq("active", true).order("created_at", { ascending: false }).limit(1).then(({ data: an }) => {
+    if (!an || !an[0] || localStorage.getItem("crushly_ann") === an[0].id) return;
+    const b = el("div", "ann"), t = el("div"), x = el("button", null, "\u2715"); x.type = "button"; x.setAttribute("aria-label", "Dismiss");
+    t.append(el("small", null, "Announcement"), el("span", null, an[0].message)); b.append(t, x);
+    x.onclick = () => { localStorage.setItem("crushly_ann", an[0].id); b.remove(); }; document.querySelector(".herocard").before(b);
+  }, () => {});
   if (p.is_admin) { const a = el("a", "link nav", "Admin panel"); a.href = "admin.html"; a.style.cssText = "letter-spacing:0;text-transform:none;margin-right:18px"; $("out").before(a); }
   const h = new Date().getHours();
   $("hi").textContent = h < 12 ? "Good Morning," : h < 17 ? "Good Afternoon," : "Good Evening,";
