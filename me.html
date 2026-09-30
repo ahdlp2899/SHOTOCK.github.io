@@ -65,6 +65,16 @@ details{border-top:1px solid rgba(138,46,255,.2);padding:14px 2px}details:first-
 @keyframes up{from{transform:translateY(100%)}}.sheet h3{margin:0 0 6px;font-size:20px}
 .toast{position:fixed;z-index:80;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.94);border:1.5px solid var(--hot);box-shadow:0 0 22px rgba(255,45,141,.5);transition:transform .4s;max-width:90%;text-align:center}
 .toast.show{transform:translate(-50%,0)}
+.sl{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--hot)}
+.invi{width:84px;height:84px;margin:0 auto;border-radius:50%;display:grid;place-items:center;border:2px solid var(--hot);background:rgba(255,45,141,.14);box-shadow:0 0 30px rgba(255,45,141,.5)}
+.invi .i svg{width:38px;height:38px}
+.lb{display:flex;gap:8px;margin-top:10px}
+.lb input{flex:1;min-width:0;padding:13px;border-radius:14px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:14px "Poppins",system-ui,sans-serif}
+.lb button{padding:0 18px;border-radius:14px;border:1.5px solid var(--hot);background:rgba(255,45,141,.15);color:#fff;font:500 14px "Poppins",system-ui,sans-serif}
+.shg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.shg button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border-radius:20px;border:1.5px solid rgba(138,46,255,.55);background:rgba(20,10,45,.6);color:#fff;font:500 13px "Poppins",system-ui,sans-serif;transition:.2s}
+.shg button:hover,.shg button:active{transform:translateY(-3px);border-color:var(--hot);box-shadow:0 0 18px rgba(255,45,141,.5)}
+.shg .i svg{width:26px;height:26px}
 </style></head>
 <body><canvas id="fx"></canvas>
 <main class="wrap me page">
@@ -81,6 +91,7 @@ details{border-top:1px solid rgba(138,46,255,.2);padding:14px 2px}details:first-
       <button class="mrow" data-go="personal" type="button"><span class="i" data-i="user"></span>Personal Information<em>&rsaquo;</em></button>
       <button class="mrow" data-go="privacy" type="button"><span class="i" data-i="lock"></span>Privacy Settings<em>&rsaquo;</em></button>
       <button class="mrow" data-go="notif" type="button"><span class="i" data-i="bell"></span>Notifications<em>&rsaquo;</em></button>
+      <button class="mrow" data-go="invite" type="button"><span class="i" data-i="share"></span>Invite Friends<em>&rsaquo;</em></button>
       <button class="mrow" data-go="help" type="button"><span class="i" data-i="help"></span>Help &amp; Support<em>&rsaquo;</em></button>
       <a class="mrow nav" id="b-admin" href="admin.html" hidden><span class="i" data-i="shield"></span>Admin panel<em>&rsaquo;</em></a>
     </div>
@@ -137,6 +148,32 @@ details{border-top:1px solid rgba(138,46,255,.2);padding:14px 2px}details:first-
     </div>
   </section>
 
+  <!-- INVITE FRIENDS -->
+  <section id="v-invite" class="view" hidden>
+    <div class="hb"><button class="bk" data-back type="button" aria-label="Back">&larr;</button><h2>Invite Friends</h2></div>
+    <div class="glass card" style="text-align:center">
+      <div class="invi"><span class="i" data-i="share"></span></div>
+      <h3 style="margin:12px 0 4px;font-size:20px">Invite your friends</h3>
+      <p class="lead" style="margin:0">Share Crushly and let your friends find their match too.</p>
+      <button class="btn" id="inv-share" type="button">Share Invite &rarr;</button>
+    </div>
+    <div class="glass card" style="margin-top:14px">
+      <b class="sl">Your invite link</b>
+      <div class="lb"><input id="inv-link" readonly aria-label="Invite link"><button id="inv-copy" type="button">Copy</button></div>
+    </div>
+    <div class="glass card" style="margin-top:14px">
+      <b class="sl">Share via</b>
+      <div class="shg">
+        <button type="button" data-share="wa"><span class="i" data-i="chat"></span>WhatsApp</button>
+        <button type="button" data-share="tg"><span class="i" data-i="plane"></span>Telegram</button>
+        <button type="button" data-share="sms"><span class="i" data-i="msg"></span>Messages</button>
+        <button type="button" data-share="mail"><span class="i" data-i="mail"></span>Email</button>
+        <button type="button" data-share="fb"><span class="i" data-i="fb"></span>Facebook</button>
+        <button type="button" data-share="copy"><span class="i" data-i="copy"></span>Copy link</button>
+      </div>
+    </div>
+  </section>
+
   <!-- HELP & SUPPORT -->
   <section id="v-help" class="view" hidden>
     <div class="hb"><button class="bk" data-back type="button" aria-label="Back">&larr;</button><h2>Help &amp; Support</h2></div>
@@ -163,7 +200,12 @@ const IC = {
   bell: '<path d="M6 17v-6a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/>', help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
   logout: '<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>', shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
   mic: '<path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4"/>', video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>',
-  cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>' };
+  cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>',
+  share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>',
+  chat: '<path d="M4 20l1.4-4.2A8 8 0 1 1 8.2 18.6z"/><path d="M9 9.5c.5 2.5 2.5 4.5 5 5l1.2-1.2-1.8-1-.8.8c-1-.4-1.8-1.2-2.2-2.2l.8-.8-1-1.8z"/>',
+  plane: '<path d="M21 3L3 11l7 3 3 7z"/><path d="M10 14L21 3"/>', msg: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/>',
+  mail: '<path d="M3 6h18v12H3z"/><path d="M3 7l9 7 9-7"/>', fb: '<circle cx="12" cy="12" r="9"/><path d="M13.5 20v-6.5H16l.4-3h-2.9V8.8c0-.9.3-1.5 1.5-1.5h1.5V4.6A17 17 0 0 0 14.3 4.5c-2.2 0-3.7 1.3-3.7 3.8v2.2H8v3h2.6V20"/>',
+  copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>' };
 document.querySelectorAll("[data-i]").forEach(e => e.insertAdjacentHTML("afterbegin", `<svg viewBox="0 0 24 24" aria-hidden="true">${IC[e.dataset.i]}</svg>`));
 const PH = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
 let tt; const toast = t => { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("show"), 2400); };
@@ -171,7 +213,7 @@ const ageOf = d => { const b = new Date(d), n = new Date(); let a = n.getFullYea
 let uid, p;
 
 /* ----- routing between the screens ----- */
-const VIEWS = ["home", "photo", "personal", "privacy", "notif", "help"];
+const VIEWS = ["home", "photo", "personal", "privacy", "notif", "invite", "help"];
 function route() {
   const v = location.hash.slice(1), id = VIEWS.includes(v) ? v : "home";
   VIEWS.forEach(x => { const e = $("v-" + x); e.hidden = x !== id; if (x === id) { e.style.animation = "none"; void e.offsetWidth; e.style.animation = ""; } });
@@ -242,6 +284,26 @@ document.querySelectorAll("#v-privacy .sw").forEach(s => s.addEventListener("cli
 $("rad").addEventListener("click", async e => { const b = e.target.closest("button"); if (!b) return; const old = p.call_privacy || "everyone";
   document.querySelectorAll("#rad button").forEach(x => x.classList.toggle("on", x === b));
   if (!await save({ call_privacy: b.dataset.v })) document.querySelectorAll("#rad button").forEach(x => x.classList.toggle("on", x.dataset.v === old)); });
+
+/* ----- invite friends ----- */
+const INVITE_LINK = new URL("signup.html", location.href).href;
+const INVITE_TEXT = "Join me on Crushly \u2014 real people, real connections. Create your free account here:";
+$("inv-link").value = INVITE_LINK;
+async function copyLink() {
+  try { await navigator.clipboard.writeText(INVITE_LINK); } catch { const i = $("inv-link"); i.select(); i.setSelectionRange(0, 99999); document.execCommand("copy"); }
+  toast("Link copied \u2665");
+}
+const enc = encodeURIComponent, msg = INVITE_TEXT + " " + INVITE_LINK;
+const SHARE = {
+  wa: () => window.open("https://wa.me/?text=" + enc(msg), "_blank", "noopener"),
+  tg: () => window.open("https://t.me/share/url?url=" + enc(INVITE_LINK) + "&text=" + enc(INVITE_TEXT), "_blank", "noopener"),
+  fb: () => window.open("https://www.facebook.com/sharer/sharer.php?u=" + enc(INVITE_LINK), "_blank", "noopener"),
+  sms: () => { location.href = "sms:?&body=" + enc(msg); },
+  mail: () => { location.href = "mailto:?subject=" + enc("Join me on Crushly") + "&body=" + enc(msg); },
+  copy: copyLink };
+document.querySelectorAll("[data-share]").forEach(b => b.addEventListener("click", () => SHARE[b.dataset.share]()));
+$("inv-copy").addEventListener("click", copyLink);
+$("inv-share").addEventListener("click", async () => { if (navigator.share) { try { await navigator.share({ title: "Crushly", text: INVITE_TEXT, url: INVITE_LINK }); } catch {} } else copyLink(); });
 
 /* ----- notifications, help, log out ----- */
 document.querySelectorAll("#v-notif .sw").forEach(s => { const k = s.dataset.l, def = k === "crushly_alert_dates";
