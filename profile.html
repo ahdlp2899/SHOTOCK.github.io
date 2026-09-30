@@ -153,7 +153,7 @@ $("form").addEventListener("submit", async e => {
   document.querySelectorAll(".field").forEach(f => f.classList.remove("err"));
   if (bad.length) {
     bad.forEach(k => { const f = document.querySelector(`[data-f="${k}"]`); void f.offsetWidth; f.classList.add("err"); });
-    document.querySelector(`[data-f="${bad[0]}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+    document.querySelector(`[data-f="${bad[0]}"]`).scrollIntoView({ behavior: "auto", block: "center" });
     crushly.msg("Please fix the highlighted fields."); return;
   }
   $("go").disabled = true;

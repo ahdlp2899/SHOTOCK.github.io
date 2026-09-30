@@ -1,0 +1,183 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crushly · Call</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="crushly.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+[hidden]{display:none!important}
+body.cl{overflow:hidden}
+.scr{position:relative;z-index:1;min-height:100dvh;max-width:480px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:calc(14px + env(safe-area-inset-top,0px)) 20px calc(26px + env(safe-area-inset-bottom,0px))}
+.hd{width:100%;display:flex;justify-content:space-between;align-items:center;z-index:3}
+.rb{width:42px;height:42px;padding:0;border-radius:50%;border:1.5px solid rgba(255,45,141,.5);background:rgba(20,10,45,.6);color:#fff;font-size:20px}
+.tm{font-weight:600;text-shadow:0 0 8px #000}
+.ctr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;z-index:2}
+.ttl{margin:0;font-size:18px}.ctr h1{margin:6px 0 4px;font-size:32px;font-weight:700}.kd{margin:0 0 26px;color:var(--muted)}
+.av{position:relative;width:200px;height:200px;display:grid;place-items:center}
+.av img{width:164px;height:164px;border-radius:50%;object-fit:cover;border:4px solid var(--pink);box-shadow:0 0 30px rgba(255,45,141,.7)}
+.dots{position:absolute;inset:0;border-radius:50%;border:2px dotted rgba(255,79,179,.7);animation:rot 12s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.cs{margin:22px 0 0;color:var(--muted)}
+.wave{display:flex;align-items:center;justify-content:center;gap:4px;height:52px;margin-top:14px}
+.wave i{width:4px;height:6px;border-radius:3px;background:linear-gradient(var(--hot),var(--purple))}
+.ctl{width:100%;z-index:3;display:flex;flex-direction:column;align-items:center;gap:18px}
+.row3{display:flex;gap:26px;justify-content:center}
+.cb{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font:12px "Poppins",system-ui,sans-serif;background:none;border:0}
+.cb b{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;border:1.5px solid rgba(138,46,255,.7);background:rgba(20,10,45,.75);color:#fff}
+.cb.off b{background:linear-gradient(135deg,var(--pink),var(--purple));border-color:var(--hot)}
+.cb svg,.endb svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.endb{width:76px;height:76px;padding:0;border-radius:50%;border:0;background:#ff2d55;color:#fff;display:grid;place-items:center;box-shadow:0 0 26px rgba(255,45,85,.6)}
+.cancel{width:80%;padding:14px;border-radius:14px;border:1.5px solid var(--hot);background:rgba(255,45,141,.08);color:#fff;font:500 16px "Poppins",system-ui,sans-serif}
+.cap{font-size:12px;color:var(--muted);margin:0}
+.rv,.lv,.shade{display:none}
+.rv{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;background:#000}
+.lv{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;width:104px;height:148px;object-fit:cover;border-radius:16px;border:2px solid var(--hot);box-shadow:0 0 16px rgba(255,45,141,.6);z-index:4;background:#140a2d}
+.shade{position:fixed;inset:0;z-index:1;background:linear-gradient(rgba(7,4,15,.6),transparent 30%,transparent 55%,rgba(7,4,15,.8))}
+.k-video .lv{display:block}.k-video.st-live .rv,.k-video.st-live .shade{display:block}.k-video.st-live .ctr{display:none}
+.k-video.st-ring .hd .tm{display:none}
+.k-audio #flip{display:none}.k-audio.st-live .hd .tm{display:none}
+.st-ring .row3,.st-ring .endb{display:none}
+.st-live .cancel,.st-live .cap,.st-live .ttl,.st-live .cs{display:none}
+.st-end .ctl,.st-end .cs,.st-end .wave{display:none}.st-end .ttl{font-size:24px;font-weight:600}
+.toast{position:fixed;z-index:80;left:50%;top:18px;transform:translate(-50%,-90px);padding:12px 20px;border-radius:999px;background:rgba(15,6,30,.94);border:1.5px solid var(--hot);transition:transform .4s;max-width:90%;text-align:center}.toast.show{transform:translate(-50%,0)}
+</style></head>
+<body class="cl"><canvas id="fx"></canvas>
+<div id="scr" class="scr st-ring k-audio">
+  <video id="rv" class="rv" autoplay playsinline muted></video><div class="shade"></div>
+  <video id="lv" class="lv" autoplay playsinline muted></video><audio id="ra" autoplay></audio>
+  <header class="hd"><button id="back" class="rb" type="button" aria-label="Back">&larr;</button><span id="tm" class="tm"></span><span style="width:42px"></span></header>
+  <section class="ctr">
+    <p id="ttl" class="ttl">Calling&hellip;</p><h1 id="nm">&nbsp;</h1><p id="kd" class="kd"></p>
+    <div class="av"><div class="dots"></div><img id="pic" alt=""></div>
+    <p id="cs" class="cs">Connecting&hellip;</p><div id="wave" class="wave" aria-hidden="true"></div>
+  </section>
+  <section class="ctl">
+    <div class="row3">
+      <button class="cb" id="mute" type="button"><b><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4"/></svg></b><span id="mlab">Mute</span></button>
+      <button class="cb" id="spk" type="button"><b><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></b><span>Speaker</span></button>
+      <button class="cb" id="flip" type="button"><b><svg viewBox="0 0 24 24"><path d="M20 7v4h-4M4 17v-4h4"/><path d="M6.5 9A7 7 0 0 1 20 11M17.5 15A7 7 0 0 1 4 13"/></svg></b><span>Flip</span></button>
+    </div>
+    <button id="cancel" class="cancel" type="button">&#10005; Cancel</button>
+    <button id="end" class="endb" type="button" aria-label="End call"><svg viewBox="0 0 24 24"><path d="M3 14c5-5 13-5 18 0l-2.4 3.2-3.6-1.7V12.8c-2-.7-4-.7-6 0v2.7L5.4 17.2z"/></svg></button>
+    <p id="cap" class="cap"></p>
+  </section>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script src="config.js"></script><script src="crushly.js"></script>
+<script>
+// STUN servers find a route between the two phones. Add a TURN server for strict mobile networks, e.g.
+// { urls: "turn:YOUR-TURN-HOST:3478", username: "USER", credential: "PASSWORD" }
+const ICE = [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }];
+const $ = id => document.getElementById(id);
+const CID = new URLSearchParams(location.search).get("c");
+const PH = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
+let tt; const toast = t => { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("show"), 2600); };
+const mmss = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+let uid, call, role, KL, pc, local, remote, chan, live = false, over = false, haveRemote = false, offered = false, pending = [], facing = "user", sink = -1;
+let tickIv, ringIv, readyIv, connTo, discTo, an, adata, ctx;
+const bars = []; for (let i = 0; i < 26; i++) { const b = document.createElement("i"); $("wave").append(b); bars.push(b); }
+const setState = s => $("scr").className = "scr k-" + (call ? call.kind : "audio") + " " + s;
+const rpc = act => db.rpc("set_call", { cid: CID, act }).then(r => r, () => {});
+const send = o => chan && chan.send({ type: "broadcast", event: "sig", payload: o });
+
+function drawWave(t) {
+  if (an && live) { an.getByteFrequencyData(adata); bars.forEach((b, i) => b.style.height = (6 + adata[Math.min(i, adata.length - 1)] / 255 * 44) + "px"); }
+  else bars.forEach((b, i) => b.style.height = (window.CRUSHLY_STILL ? 10 : 6 + 6 * Math.abs(Math.sin(t / 260 + i * .6))) + "px");
+  requestAnimationFrame(drawWave);
+}
+requestAnimationFrame(drawWave);
+function listen(stream) { try { const AC = window.AudioContext || window.webkitAudioContext; ctx = new AC(); an = ctx.createAnalyser(); an.fftSize = 64; ctx.createMediaStreamSource(stream).connect(an); adata = new Uint8Array(an.frequencyBinCount); } catch {} }
+
+function finish(msg, notify = true) {
+  if (over) return; over = true;
+  if (notify) send({ t: "end" });
+  [tickIv, ringIv, readyIv].forEach(clearInterval); clearTimeout(connTo); clearTimeout(discTo);
+  try { pc && pc.close(); } catch {} try { local && local.getTracks().forEach(t => t.stop()); } catch {}
+  $("ttl").textContent = msg; setState("st-end");
+  setTimeout(() => location.href = call ? "chat.html?m=" + call.match_id : "chat.html", 1400);
+}
+function goLive() {
+  if (live) return; live = true; clearTimeout(connTo); clearInterval(ringIv); setState("st-live");
+  const t0 = Date.now();
+  tickIv = setInterval(() => { const s = mmss((Date.now() - t0) / 1000); $("tm").textContent = s; $("kd").textContent = KL + " \u2022 " + s; }, 500);
+  if (ctx && ctx.state === "suspended") ctx.resume();
+}
+function makePc() {
+  pc = new RTCPeerConnection({ iceServers: ICE });
+  local.getTracks().forEach(t => pc.addTrack(t, local));
+  pc.onicecandidate = e => e.candidate && send({ t: "ice", c: e.candidate });
+  pc.ontrack = e => {
+    if (e.streams[0]) remote = e.streams[0]; else { remote = remote || new MediaStream(); remote.addTrack(e.track); }
+    $("ra").srcObject = remote; $("ra").play().catch(() => {});
+    if (call.kind === "video") $("rv").srcObject = remote;
+    if (!an) listen(remote);
+  };
+  pc.onconnectionstatechange = () => { const s = pc.connectionState;
+    if (s === "connected") { clearTimeout(discTo); goLive(); }
+    else if (s === "failed") finish("Connection lost");
+    else if (s === "disconnected") { clearTimeout(discTo); discTo = setTimeout(() => pc && pc.connectionState !== "connected" && finish("Connection lost"), 7000); } };
+}
+async function onSig(m) {
+  if (over || !pc) return;
+  if (m.t === "ready" && role === "caller" && !offered) {
+    offered = true; clearInterval(ringIv); $("cap").textContent = "";
+    connTo = setTimeout(() => !live && finish("Could not connect"), 25000);
+    await pc.setLocalDescription(await pc.createOffer()); send({ t: "offer", sdp: pc.localDescription });
+  } else if (m.t === "offer" && role === "callee" && !haveRemote) {
+    clearInterval(readyIv); await pc.setRemoteDescription(m.sdp); haveRemote = true; pending.forEach(c => pc.addIceCandidate(c).catch(() => {})); pending = [];
+    await pc.setLocalDescription(await pc.createAnswer()); send({ t: "answer", sdp: pc.localDescription }); rpc("answer");
+  } else if (m.t === "answer" && role === "caller" && !haveRemote) {
+    await pc.setRemoteDescription(m.sdp); haveRemote = true; pending.forEach(c => pc.addIceCandidate(c).catch(() => {})); pending = [];
+  } else if (m.t === "ice") { if (haveRemote) pc.addIceCandidate(m.c).catch(() => {}); else pending.push(m.c); }
+  else if (m.t === "end") finish(live ? "Call ended" : role === "caller" ? "Call declined" : "Call ended", false);
+}
+async function hang() {
+  if (over) return;
+  const act = live ? "end" : role === "caller" ? "cancel" : "decline";
+  await rpc(act); finish(live ? "Call ended" : role === "caller" ? "Call cancelled" : "Call declined");
+}
+["cancel", "end", "back"].forEach(id => $(id).addEventListener("click", hang));
+$("mute").addEventListener("click", () => { const t = local && local.getAudioTracks()[0]; if (!t) return; t.enabled = !t.enabled; $("mute").classList.toggle("off", !t.enabled); $("mlab").textContent = t.enabled ? "Mute" : "Unmute"; });
+$("spk").addEventListener("click", async () => {
+  if (!("setSinkId" in HTMLMediaElement.prototype)) return toast("Use your phone\u2019s speaker or volume buttons");
+  const d = (await navigator.mediaDevices.enumerateDevices()).filter(x => x.kind === "audiooutput"); if (d.length < 2) return toast("No other speaker found");
+  sink = (sink + 1) % d.length; try { await $("ra").setSinkId(d[sink].deviceId); toast("Sound: " + (d[sink].label || "speaker " + (sink + 1))); } catch { toast("Could not switch speaker"); }
+});
+$("flip").addEventListener("click", async () => {
+  const next = facing === "user" ? "environment" : "user";
+  try { const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: next } }), t = s.getVideoTracks()[0];
+    await pc.getSenders().find(x => x.track && x.track.kind === "video").replaceTrack(t);
+    local.getVideoTracks().forEach(x => { x.stop(); local.removeTrack(x); }); local.addTrack(t); $("lv").srcObject = local; facing = next; $("lv").style.transform = next === "user" ? "scaleX(-1)" : "none";
+  } catch { toast("Could not switch camera"); }
+});
+addEventListener("pagehide", () => { if (!over) send({ t: "end" }); });
+
+(async () => {
+  if (!CID) { location.href = "chat.html"; return; }
+  const { data: { session } } = await db.auth.getSession(); if (!session) { location.href = "index.html"; return; }
+  uid = session.user.id;
+  const { data: c } = await db.from("calls").select("*").eq("id", CID).maybeSingle();
+  if (!c || (c.caller !== uid && c.callee !== uid)) { location.href = "chat.html"; return; }
+  call = c; role = c.caller === uid ? "caller" : "callee"; KL = c.kind === "video" ? "Video Call" : "Audio Call"; setState("st-ring");
+  const { data: o } = await db.from("profiles").select("display_name,avatar_url").eq("id", role === "caller" ? c.callee : c.caller).maybeSingle();
+  $("nm").textContent = (o && o.display_name) || "Someone"; $("pic").src = (o && o.avatar_url) || PH;
+  $("kd").textContent = KL; $("ttl").textContent = role === "caller" ? "Calling\u2026" : "Connecting\u2026";
+  if (!window.RTCPeerConnection || !navigator.mediaDevices) return finish("Calls aren\u2019t supported on this browser", false);
+  if (role === "callee" && c.status !== "ringing") return finish(c.status === "answered" ? "Call already answered" : "Call ended", false);
+  try { local = await navigator.mediaDevices.getUserMedia({ audio: true, video: c.kind === "video" ? { facingMode: "user" } : false }); }
+  catch { await rpc(role === "caller" ? "cancel" : "decline"); return finish("Allow microphone" + (c.kind === "video" ? " and camera" : "") + " access to call", false); }
+  if (c.kind === "video") { $("lv").srcObject = local; }
+  makePc();
+  db.channel("callrow:" + CID).on("postgres_changes", { event: "UPDATE", schema: "public", table: "calls", filter: "id=eq." + CID }, pl => {
+    const s = pl.new.status; if (s === "declined") finish("Call declined", false); else if (s === "cancelled") finish("Call cancelled", false);
+    else if (s === "missed") finish("No answer", false); else if (s === "ended") finish("Call ended", false); }).subscribe();
+  chan = db.channel("call:" + CID, { config: { broadcast: { self: false } } });
+  chan.on("broadcast", { event: "sig" }, ({ payload }) => onSig(payload)).subscribe(st => {
+    if (st !== "SUBSCRIBED") return;
+    if (role === "callee") { send({ t: "ready" }); readyIv = setInterval(() => send({ t: "ready" }), 1500); connTo = setTimeout(() => !live && finish("Could not connect"), 30000); $("cap").textContent = "Joining call\u2026"; }
+    else if (!ringIv) { let left = 15; $("cap").textContent = "Call will end in " + left + "s if not answered";
+      ringIv = setInterval(async () => { left--; $("cap").textContent = "Call will end in " + left + "s if not answered";
+        if (left <= 0) { clearInterval(ringIv); await rpc("missed"); finish("No answer"); } }, 1000); }
+  });
+})();
+</script></body></html>

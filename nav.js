@@ -38,7 +38,7 @@
 .rbs .ok{background:linear-gradient(135deg,#FF2D8D,#8A2EFF);box-shadow:0 0 30px rgba(255,45,141,.8)}.rbs .no{background:#ff2d55;box-shadow:0 0 24px rgba(255,45,85,.6)}
 .rbs svg{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .rbar{width:min(300px,80%);height:5px;margin:22px auto 8px;border-radius:9px;background:rgba(138,46,255,.3);overflow:hidden}
-.rbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FF2D8D,#8A2EFF);transition:width 15s linear}
+.rbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FF2D8D,#8A2EFF);transition:width 1s linear}
 .mcard{position:fixed;z-index:85;left:50%;top:14px;transform:translateX(-50%);width:min(440px,calc(100% - 24px));padding:14px 16px;border-radius:20px;background:rgba(20,10,45,.97);border:1.5px solid #FF4FB3;box-shadow:0 0 26px rgba(255,45,141,.45);color:#fff;font:14px "Poppins",system-ui,sans-serif;cursor:pointer;animation:rpdn .4s both}
 @keyframes rpdn{from{transform:translate(-50%,-120%)}}
 .mcard small{display:block;color:#b9a6dd}`;
@@ -122,8 +122,7 @@
       document.body.append(ringEl);
       ringEl.querySelector(".ok").onclick = () => { location.href = "call.html?c=" + c.id; };
       ringEl.querySelector(".no").onclick = async () => { closeRing(); await db.rpc("set_call", { cid: c.id, act: "decline" }); };
-      requestAnimationFrame(() => requestAnimationFrame(() => { const i = ringEl && ringEl.querySelector(".rbar i"); if (i) i.style.width = "0%"; }));
-      let left = 15; ringIv = setInterval(() => { left--; const t = ringEl && ringEl.querySelector(".rcap"); if (t) t.textContent = "Call will end in " + left + "s"; if (left <= 0) closeRing(); }, 1000);
+      let left = 15; ringIv = setInterval(() => { left--; const t = ringEl && ringEl.querySelector(".rcap"); if (t) t.textContent = "Call will end in " + left + "s"; const bar = ringEl && ringEl.querySelector(".rbar i"); if (bar) bar.style.width = (left / 15 * 100) + "%"; if (left <= 0) closeRing(); }, 1000);
     }
     async function missed(c) {
       if (localStorage.getItem("crushly_dnd") === "1") return; const p = await who(c.caller), d = document.createElement("div"); d.className = "mcard";

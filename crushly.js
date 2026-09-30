@@ -1,4 +1,5 @@
 /* ===== CRUSHLY shared script ===== */
+window.CRUSHLY_STILL = true; // true = no animation. Set to false (and delete the STILL MODE block in crushly.css) to bring animations back
 // Page users land on after login (returning users with a saved profile)
 const HOME_PAGE = "dashboard.html";
 
@@ -24,6 +25,7 @@ const HOME_PAGE = "dashboard.html";
     const a = e.target.closest("a.nav");
     if (!a) return;
     e.preventDefault();
+    if (window.CRUSHLY_STILL) { location.href = a.href; return; }
     document.body.classList.add("leaving");
     setTimeout(() => (location.href = a.href), 600);
   });
@@ -37,7 +39,7 @@ const HOME_PAGE = "dashboard.html";
 
   // --- mouse parallax on the hero ---
   const hero = $(".hero");
-  if (hero) addEventListener("pointermove", e => {
+  if (hero && !window.CRUSHLY_STILL) addEventListener("pointermove", e => {
     const x = (e.clientX / innerWidth - .5) * 2, y = (e.clientY / innerHeight - .5) * 2;
     hero.style.transform = `rotateY(${x * 8}deg) rotateX(${-y * 6}deg)`;
   });
@@ -58,17 +60,17 @@ const HOME_PAGE = "dashboard.html";
   function frame(t) {
     g.clearRect(0, 0, W, H);
     for (const p of P) {
-      p.y -= p.v; p.x += Math.sin(t / 1500 + p.ph) * .3;
-      if (p.y < -20) Object.assign(p, spawn(true));
-      g.globalAlpha = .25 + .5 * Math.abs(Math.sin(t / 1200 + p.ph));
+      const still = window.CRUSHLY_STILL;
+      if (!still) { p.y -= p.v; p.x += Math.sin(t / 1500 + p.ph) * .3; if (p.y < -20) Object.assign(p, spawn(true)); }
+      g.globalAlpha = .25 + .5 * Math.abs(Math.sin(still ? p.ph : t / 1200 + p.ph));
       g.fillStyle = g.shadowColor = p.col; g.shadowBlur = 12;
       g.save(); g.translate(p.x, p.y); g.scale(p.s, p.s);
       if (p.dot) { g.beginPath(); g.arc(0, 0, 2, 0, 6.28); g.fill(); } else g.fill(shape);
       g.restore();
     }
-    if (!reduce && !document.hidden) requestAnimationFrame(frame);
+    if (!reduce && !window.CRUSHLY_STILL && !document.hidden) requestAnimationFrame(frame);
   }
-  size(); addEventListener("resize", size);
+  size(); addEventListener("resize", () => { size(); if (window.CRUSHLY_STILL) { for (const p of P) { p.x = Math.min(p.x, W); p.y = Math.min(p.y, H); } frame(0); } });
   for (let i = 0; i < COUNT; i++) P.push(spawn(false));
   requestAnimationFrame(frame);
   document.addEventListener("visibilitychange", () => !document.hidden && !reduce && requestAnimationFrame(frame));

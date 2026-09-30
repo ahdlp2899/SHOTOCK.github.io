@@ -289,7 +289,7 @@ function addMsg(m) {
   b.addEventListener("contextmenu", e => { e.preventDefault(); menu(); });
   b.addEventListener("touchstart", () => { lp = setTimeout(menu, 550); }, { passive: true });
   ["touchend", "touchmove", "touchcancel"].forEach(ev => b.addEventListener(ev, () => clearTimeout(lp), { passive: true }));
-  shown.set(m.id, b); box.append(b); box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
+  shown.set(m.id, b); box.append(b); box.scrollTo({ top: box.scrollHeight, behavior: "auto" });
 }
 async function send(row) {
   const { data, error } = await db.from("messages").insert({ match_id: MID, sender: uid, ...row }).select().single();

@@ -168,7 +168,7 @@ async function sendReq() {
   const { error } = await db.from("dates").insert({ match_id: v.mid, sender: uid, receiver: m.p.id, date_on: v.date, time_at: v.time, place: v.place, kind: ck, note: v.note || null });
   if (error) { $("cs").disabled = false; err.textContent = /relation|schema|dates/i.test(error.message) ? "Database needs the date upgrade: run the date SQL in Supabase first." : error.message; return; }
   $("tk").classList.add("fly");
-  setTimeout(async () => { await loadDates(); tab = "pending"; location.hash = "#requests"; toast("Date request sent \u2665"); }, 1100);
+  setTimeout(async () => { await loadDates(); tab = "pending"; location.hash = "#requests"; toast("Date request sent \u2665"); }, window.CRUSHLY_STILL ? 0 : 1100);
 }
 function qr(seed) {
   let h = 7; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0; let r = "";

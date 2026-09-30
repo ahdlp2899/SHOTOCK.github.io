@@ -66,3 +66,6 @@ body.leaving .page{animation:out .6s ease both}
 a,button,[role="button"],select{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,45,141,.25)}
 button:disabled{cursor:not-allowed}
 [role="button"]:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+
+/* ===== STILL MODE: no animation anywhere. Delete this block to bring animations back ===== */
+*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}

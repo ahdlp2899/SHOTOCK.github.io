@@ -150,13 +150,13 @@ const ageOf = d => { const b = new Date(d), n = new Date(); let a = n.getFullYea
   if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) a--; return a; };
 const PLACEHOLDER = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#140a2d"/><circle cx="50" cy="38" r="16" fill="#8A2EFF"/><path d="M18 88c4-22 20-30 32-30s28 8 32 30Z" fill="#8A2EFF"/></svg>');
 let tt; const toast = t => { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("show"), 2400); };
-function count(e, n) { const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / 900);
+function count(e, n) { if (window.CRUSHLY_STILL) { e.textContent = n; return; } const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / 900);
   e.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(f); })(t0); }
 document.querySelectorAll("[data-soon]").forEach(b => b.addEventListener("click", e => { e.preventDefault(); toast("Coming soon \u2665"); }));
 let pendingIn = 0;
 $("bell").addEventListener("click", () => pendingIn ? (location.href = "date.html#requests") : toast("You're all caught up \u2665"));
 $("seeall").addEventListener("click", () => { const g = $("picks").classList.toggle("grid"); $("seeall").textContent = g ? "Show Less" : "See All \u2192"; });
-const statGo = { likes: () => { $("picksec").scrollIntoView({ behavior: "smooth" }); toast("Like people back from Today's Picks \u2665"); },
+const statGo = { likes: () => { $("picksec").scrollIntoView({ behavior: "auto" }); toast("Like people back from Today's Picks \u2665"); },
   chats: () => location.href = "chat.html", date: () => location.href = "date.html#mine", views: () => toast("Profile views are coming soon") };
 document.querySelectorAll("[data-stat]").forEach(e => { const go = () => statGo[e.dataset.stat](); e.addEventListener("click", go);
   e.addEventListener("keydown", k => { if (k.key === "Enter" || k.key === " ") { k.preventDefault(); go(); } }); });
@@ -176,7 +176,7 @@ function openPv(x, card, btn) {
   $("pv-blk").onclick = () => { $("pv").hidden = true; crushlyBlock(x.id, x.display_name, () => { card.remove(); if (!$("picks").children.length) $("empty").hidden = false; }); };
   $("pv").hidden = false;
 }
-$("find").addEventListener("click", () => $("picksec").scrollIntoView({ behavior: "smooth" }));
+$("find").addEventListener("click", () => $("picksec").scrollIntoView({ behavior: "auto" }));
 $("out").addEventListener("click", async e => { e.preventDefault(); await db.auth.signOut(); location.href = "index.html"; });
 
 let uid, me;
